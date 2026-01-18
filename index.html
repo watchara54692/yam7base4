@@ -3,29 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบตั้งดวงยาม 7 ตัว 4 ฐาน (0.1)</title>
+    <title>7-Digit Astrology Tool</title>
     <style>
-        :root { --primary: #2c3e50; --gold: #d4af37; --bg: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--primary); padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .container { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 800px; width: 100%; }
-        h2 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--gold); padding-bottom: 10px; }
-        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        input, button { padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; }
-        button { cursor: pointer; background: var(--primary); color: white; border: none; transition: 0.3s; }
-        button:hover { background: #34495e; }
+        :root { --primary: #1a2a3a; --gold: #c5a02e; --bg: #fdfdfd; }
+        body { font-family: 'Tahoma', sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; }
+        .container { background: white; border: 1px solid #ddd; border-radius: 8px; max-width: 600px; width: 100%; padding: 10px; box-sizing: border-box; }
+        
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        input, button { padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 14px; outline: none; }
+        button { cursor: pointer; background: var(--primary); color: white; border: none; font-weight: bold; }
         .btn-now { background: var(--gold); }
-        .result-table { width: 100%; border-collapse: collapse; margin-top: 20px; overflow-x: auto; display: block; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; min-width: 80px; }
-        th { background: #eee; font-size: 14px; }
-        .base-4 { background: #fff8e1; font-weight: bold; color: #b71c1c; }
-        .info { margin-top: 15px; padding: 10px; background: #e8f5e9; border-radius: 8px; font-size: 14px; }
+
+        .result-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 10px; }
+        th, td { border: 1px solid #444; text-align: center; vertical-align: middle; padding: 4px 1px; }
+        
+        /* หัวตาราง 21 ภพ */
+        .house-header { font-size: 10px; line-height: 1.2; background: #eee; height: 50px; }
+        .house-group { border-bottom: 1px solid #ccc; padding: 2px 0; }
+        .house-group:last-child { border-bottom: none; }
+
+        .digit-cell { font-size: 18px; font-weight: bold; height: 40px; }
+        .row-base { background: #fff9c4; color: #b71c1c; font-size: 20px; }
+        
+        .info-panel { margin-top: 12px; font-size: 13px; padding: 8px; background: #f0f4f8; border-radius: 5px; text-align: center; border: 1px solid #d1d9e6; }
+        strong { color: var(--primary); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>โหราศาสตร์ 7 ตัว 4 ฐาน (ระบบยามอัฐกาล)</h2>
-    
     <div class="controls">
         <input type="date" id="inputDate">
         <input type="time" id="inputTime">
@@ -33,94 +39,12 @@
         <button onclick="calculateYam()">ตั้งดวงยาม</button>
     </div>
 
-    <div id="summaryInfo" class="info" style="display:none;"></div>
-
     <table class="result-table" id="yamTable">
         <thead>
-            <tr id="rowHouses"></tr>
+            <tr id="headerRow" class="house-header"></tr>
         </thead>
-        <tbody>
-            <tr id="row1"></tr>
-            <tr id="row2"></tr>
-            <tr id="row3"></tr>
-            <tr id="row4" class="base-4"></tr>
-        </tbody>
-    </table>
-</div>
-
-<script>
-    const houses = ["อัตตะ", "หินะ", "ธนัง", "สหัสชะ", "ปิตา", "มาตา", "โภคา", "มัชฌิมา", "ตะนุ", "กดุมพะ", "สหัชชะ", "พันธุ", "ปุตตะ", "อริ", "ปัตนิ", "มรณะ", "สุภะ", "กัมมะ", "ลาภะ", "พยายะ", "ทาสา", "ทาสี"];
-    const yamSequence = [1, 6, 4, 2, 7, 5, 3]; // กฎลบ 2
-
-    function setNow() {
-        const now = new Date();
-        document.getElementById('inputDate').valueAsDate = now;
-        document.getElementById('inputTime').value = now.toTimeString().substring(0,5);
-        calculateYam();
-    }
-
-    function calculateYam() {
-        const dateInput = document.getElementById('inputDate').value;
-        const timeInput = document.getElementById('inputTime').value;
-        if(!dateInput || !timeInput) return alert("กรุณาระบุวันและเวลา");
-
-        let dt = new Date(dateInput + 'T' + timeInput);
-        let dayOfWeek = dt.getDay(); // 0=Sun, 6=Sat -> ปรับเป็น 1=Sun, 7=Sat
-        dayOfWeek = dayOfWeek === 0 ? 1 : dayOfWeek + 1;
-
-        let hours = dt.getHours();
-        let minutes = dt.getMinutes();
-        let totalMinutes = (hours * 60) + minutes;
-
-        // ปรับวันทางโหราศาสตร์ (เริ่ม 06.00 น.)
-        let bioDay = dayOfWeek;
-        if (hours < 6) bioDay = (dayOfWeek === 1) ? 7 : dayOfWeek - 1;
-
-        // คำนวณยามหลัก (ช่วงละ 90 นาที)
-        let isNight = (totalMinutes >= 1080 || totalMinutes < 360); // 18:00 - 06.00
-        let refTime = isNight ? (totalMinutes < 360 ? totalMinutes + 1440 : totalMinutes) - 1080 : totalMinutes - 360;
-        let yamIdx = Math.floor(refTime / 90) + 1;
-        
-        // หาลำดับยามหลัก (ลบ 2)
-        let firstYam = isNight ? ((bioDay + 4 > 7) ? bioDay + 4 - 7 : bioDay + 4) : bioDay;
-        let mainYam = firstYam;
-        for(let i=1; i < yamIdx; i++) {
-            let next = yamSequence.indexOf(mainYam) + 1;
-            mainYam = yamSequence[next > 6 ? 0 : next];
-        }
-
-        // คำนวณลูกยาม (13 นาที)
-        let minutesInYam = refTime % 90;
-        let lukYamIdx = Math.floor(minutesInYam / 12.85) + 1;
-        let lukYam = (mainYam + lukYamIdx - 1) > 7 ? (mainYam + lukYamIdx - 1) % 7 || 7 : (mainYam + lukYamIdx - 1);
-
-        displayTable(bioDay, mainYam, lukYam, isNight, yamIdx);
-    }
-
-    function displayTable(d, y, ly, night, yIdx) {
-        const rows = [[], [], [], []];
-        for(let i=0; i<7; i++) {
-            let v1 = (d + i) > 7 ? (d + i) % 7 || 7 : (d + i);
-            let v2 = (y + i) > 7 ? (y + i) % 7 || 7 : (y + i);
-            let v3 = (ly + i) > 7 ? (ly + i) % 7 || 7 : (ly + i);
-            rows[0].push(v1);
-            rows[1].push(v2);
-            rows[2].push(v3);
-            rows[3].push(v1 + v2 + v3);
-        }
-
-        document.getElementById('rowHouses').innerHTML = houses.slice(0,7).map(h => `<th>${h}</th>`).join('');
-        document.getElementById('row1').innerHTML = rows[0].map(v => `<td>${v}</td>`).join('');
-        document.getElementById('row2').innerHTML = rows[1].map(v => `<td>${v}</td>`).join('');
-        document.getElementById('row3').innerHTML = rows[2].map(v => `<td>${v}</td>`).join('');
-        document.getElementById('row4').innerHTML = rows[3].map(v => `<td>${v}</td>`).join('');
-        
-        document.getElementById('summaryInfo').style.display = 'block';
-        document.getElementById('summaryInfo').innerHTML = `
-            <strong>รหัสยาม:</strong> ${rows[0][0]} - ${rows[1][0]} - ${rows[2][0]} ฐาน ${rows[3][0]} <br>
-            <strong>สถานะ:</strong> ยามที่ ${yIdx} (${night ? 'กลางคืน' : 'กลางวัน'}) | ลูกยามที่ ${Math.ceil((ly - rows[1][0] + 7) % 7 + 1)}
-        `;
-    }
-</script>
-</body>
-</html>
+        <tbody id="digitBody">
+            <tr id="row1" class="digit-cell"></tr>
+            <tr id="row2" class="digit-cell"></tr>
+            <tr id="row3" class="digit-cell"></tr>
+            <tr id="row4" class="digit-cell row-base"></tr>
