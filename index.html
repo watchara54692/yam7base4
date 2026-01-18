@@ -3,30 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7-Digit Astrology Tool</title>
+    <title>7-Digit Astrology Tool (V2)</title>
     <style>
         :root { --primary: #1a2a3a; --gold: #c5a02e; --bg: #fdfdfd; }
         body { font-family: 'Tahoma', sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; }
-        .container { background: white; border: 1px solid #ddd; border-radius: 8px; max-width: 600px; width: 100%; padding: 10px; box-sizing: border-box; }
+        .container { background: white; border: 1px solid #ddd; border-radius: 8px; max-width: 650px; width: 100%; padding: 12px; box-sizing: border-box; }
         
         .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        input, button { padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 14px; outline: none; }
+        input, button { padding: 12px; border-radius: 5px; border: 1px solid #ccc; font-size: 15px; outline: none; }
         button { cursor: pointer; background: var(--primary); color: white; border: none; font-weight: bold; }
         .btn-now { background: var(--gold); }
 
-        .result-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 10px; }
-        th, td { border: 1px solid #444; text-align: center; vertical-align: middle; padding: 4px 1px; }
+        .result-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        td { border: 1px solid #333; text-align: center; vertical-align: middle; padding: 6px 0; height: 60px; }
         
-        /* หัวตาราง 21 ภพ */
-        .house-header { font-size: 10px; line-height: 1.2; background: #eee; height: 50px; }
-        .house-group { border-bottom: 1px solid #ccc; padding: 2px 0; }
-        .house-group:last-child { border-bottom: none; }
-
-        .digit-cell { font-size: 18px; font-weight: bold; height: 40px; }
-        .row-base { background: #fff9c4; color: #b71c1c; font-size: 20px; }
+        /* สไตล์ชื่อภพในช่อง */
+        .house-label { font-size: 10px; color: #666; margin-bottom: 2px; display: block; }
+        .digit-value { font-size: 22px; font-weight: bold; color: #000; display: block; }
         
-        .info-panel { margin-top: 12px; font-size: 13px; padding: 8px; background: #f0f4f8; border-radius: 5px; text-align: center; border: 1px solid #d1d9e6; }
-        strong { color: var(--primary); }
+        /* สไตล์แถวฐาน */
+        .row-base { background: #fff9c4; border-top: 2px solid #333; }
+        .base-label { font-size: 10px; color: #b71c1c; font-weight: bold; }
+        .base-value { font-size: 22px; font-weight: bold; color: #b71c1c; }
+        
+        .info-panel { margin-top: 15px; font-size: 14px; padding: 10px; background: #f0f4f8; border-radius: 5px; text-align: center; border: 1px solid #d1d9e6; }
     </style>
 </head>
 <body>
@@ -39,31 +39,22 @@
         <button onclick="calculateYam()">ตั้งดวงยาม</button>
     </div>
 
-    <table class="result-table" id="yamTable">
-        <thead>
-            <tr id="headerRow" class="house-header"></tr>
-        </thead>
-        <tbody id="digitBody">
-            <tr id="row1" class="digit-cell"></tr>
-            <tr id="row2" class="digit-cell"></tr>
-            <tr id="row3" class="digit-cell"></tr>
-            <tr id="row4" class="digit-cell row-base"></tr>
-        </tbody>
+    <table class="result-table">
+        <tbody id="tableBody">
+            </tbody>
     </table>
 
     <div id="summaryInfo" class="info-panel" style="display:none;"></div>
 </div>
 
 <script>
-    const houses = [
-        ["อัตตะ", "ตนุ", "มรณะ"],
-        ["หินะ", "กดุมภะ", "สุภะ"],
-        ["ธนัง", "สหัชชะ", "กัมมะ"],
-        ["ปิตา", "พันธุ", "ลาภะ"],
-        ["มาตา", "ปุตตะ", "พยายะ"],
-        ["โภคา", "อริ", "ทาสา"],
-        ["มัชฌิมา", "ปัตนิ", "ทาสี"]
+    // นิยามภพทั้ง 21 ตามลำดับ
+    const houseList = [
+        ["อัตตะ", "หินะ", "ธนัง", "ปิตา", "มาตา", "โภคา", "มัชฌิมา"],
+        ["ตนุ", "กดุมภะ", "สหัชชะ", "พันธุ", "ปุตตะ", "อริ", "ปัตนิ"],
+        ["มรณะ", "สุภะ", "กัมมะ", "ลาภะ", "พยายะ", "ทาสา", "ทาสี"]
     ];
+    
     const yamSequence = [1, 6, 4, 2, 7, 5, 3];
 
     function setNow() {
@@ -84,7 +75,10 @@
         let minutes = dt.getMinutes();
         let totalMin = (hours * 60) + minutes;
 
+        // ปรับวันทางโหราศาสตร์
         let bioDay = (hours < 6) ? (dayOfWeek === 1 ? 7 : dayOfWeek - 1) : dayOfWeek;
+        
+        // คำนวณยาม
         let isNight = (totalMin >= 1080 || totalMin < 360);
         let refTime = isNight ? (totalMin < 360 ? totalMin + 1440 : totalMin) - 1080 : totalMin - 360;
         let yamIdx = Math.floor(refTime / 90) + 1;
@@ -104,27 +98,50 @@
     }
 
     function renderTable(d, y, ly, night, yIdx, lyIdx) {
-        let hHtml = '';
-        houses.forEach(group => {
-            hHtml += `<th><div class="house-group">${group[0]}</div><div class="house-group">${group[1]}</div><div class="house-group">${group[2]}</div></th>`;
-        });
-        document.getElementById('headerRow').innerHTML = hHtml;
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = ''; // ล้างตารางเดิม
 
-        const res = [[], [], [], []];
+        const results = [[], [], []];
+        const baseRow = [];
+
+        // คำนวณเลขดาวทั้ง 3 แถว
         for(let i=0; i<7; i++) {
-            let v1 = (d + i) > 7 ? (d + i) % 7 || 7 : (d + i);
-            let v2 = (y + i) > 7 ? (y + i) % 7 || 7 : (y + i);
-            let v3 = (ly + i) > 7 ? (ly + i) % 7 || 7 : (ly + i);
-            res[0].push(v1); res[1].push(v2); res[2].push(v3); res[3].push(v1 + v2 + v3);
+            results[0].push((d + i) > 7 ? (d + i) % 7 || 7 : (d + i));
+            results[1].push((y + i) > 7 ? (y + i) % 7 || 7 : (y + i));
+            results[2].push((ly + i) > 7 ? (ly + i) % 7 || 7 : (ly + i));
+            baseRow.push(results[0][i] + results[1][i] + results[2][i]);
         }
 
-        for(let j=0; j<4; j++) {
-            document.getElementById(`row${j+1}`).innerHTML = res[j].map(v => `<td>${v}</td>`).join('');
+        // สร้างแถวข้อมูล 1-3
+        for(let r=0; r<3; r++) {
+            let tr = document.createElement('tr');
+            for(let c=0; c<7; c++) {
+                tr.innerHTML += `
+                    <td>
+                        <span class="house-label">${houseList[r][c]}</span>
+                        <span class="digit-value">${results[r][c]}</span>
+                    </td>
+                `;
+            }
+            tableBody.appendChild(tr);
         }
+
+        // สร้างแถวฐาน (แถวที่ 4)
+        let trBase = document.createElement('tr');
+        trBase.className = 'row-base';
+        for(let b=0; b<7; b++) {
+            trBase.innerHTML += `
+                <td>
+                    <span class="base-label">ฐาน</span>
+                    <span class="base-value">${baseRow[b]}</span>
+                </td>
+            `;
+        }
+        tableBody.appendChild(trBase);
 
         const info = document.getElementById('summaryInfo');
         info.style.display = 'block';
-        info.innerHTML = `<strong>ยาม ${yIdx} (${night ? 'กลางคืน' : 'กลางวัน'}) | ลูกยามที่ ${lyIdx}</strong><br>รหัส: ${res[0][0]} - ${res[1][0]} - ${res[2][0]} ฐาน ${res[3][0]}`;
+        info.innerHTML = `<strong>ยามที่ ${yIdx} (${night ? 'กลางคืน' : 'กลางวัน'}) | ลูกยามที่ ${lyIdx}</strong><br>รหัส: ${results[0][0]} - ${results[1][0]} - ${results[2][0]} ฐาน ${baseRow[0]}`;
     }
 
     window.onload = setNow;
