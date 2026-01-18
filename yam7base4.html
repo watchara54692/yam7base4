@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบคำนวณดวงยามเลข 7 ตัว 4 ฐาน</title>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e67e22;
+            --bg-color: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        #datetime-display {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .info-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            background: #fdf2e9;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 5px solid var(--accent-color);
+        }
+
+        .info-item b {
+            color: var(--accent-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+            font-size: 1.05em;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .row-label {
+            background-color: #eee;
+            font-weight: bold;
+            text-align: left;
+            width: 150px;
+        }
+
+        .base-4 {
+            background-color: #fff3cd;
+            font-weight: bold;
+            color: #856404;
+        }
+
+        .highlight-yam {
+            color: #d35400;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 0.85em;
+            color: #7f8c8d;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h1>วิชาจับดวงยามเลข 7 ตัว 4 ฐาน</h1>
+    <div id="datetime-display"></div>
+
+    <div class="info-section" id="calculation-info"></div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>แถว / เสา</th>
+            <th>1</th><th>2</th><th>3</th><th>4</th>
+            <th>5</th><th>6</th><th>7</th>
+        </tr>
+        </thead>
+        <tbody id="chart-body"></tbody>
+    </table>
+
+    <div class="footer">
+        * หมายเหตุ: การคำนวณเดือนและปีนักษัตรเป็นตัวอย่างเพื่อการแสดงผล
+    </div>
+</div>
+
+<script>
+function getThaiAstrologyData() {
+    const now = new Date();
+
+    // แปลงวัน: อาทิตย์=1 ... เสาร์=7
+    const day = now.getDay() === 0 ? 1 : now.getDay() + 1;
+
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const timeDecimal = hours + minutes / 60;
+
+    // ตัวอย่างข้อมูล (ปรับภายหลังได้)
+    const thaiMonth = 3;
+    const thaiYear = 7; // มะเมีย
+
+    const isDay = hours >= 6 && hours < 18;
+
+    const yamSequences = {
+        1: { day: [1,6,4,2,7,5,3,1], night: [4,2,7,5,3,1,6,4] },
+        2: { day: [2,7,5,3,1,6,4,2], night: [5,3,1,6,4,2,7,5] },
+        3: { day: [3,1,6,4,2,7,5,3], night: [6,4,2,7,5,3,1,6] },
+        4: { day: [4,2,7,5,3,1,6,4], night: [7,5,3,1,6,4,2,7] },
+        5: { day: [5,3,1,6,4,2,7,5], night: [1,6,4,2,7,5,3,1] },
+        6: { day: [6,4,2,7,5,3,1,6], night: [2,7,5,3,1,6,4,2] },
+        7: { day: [7,5,3,1,6,4,2,7], night: [3,1,6,4,2,7,5,3] }
+    };
+
+    const seq = isDay ? yamSequences[day].day : yamSequences[day].night;
+    const baseTime = isDay ? 6 : 18;
+    let passed = timeDecimal - baseTime;
+    if (passed < 0) passed += 24;
+
+    let yamIndex = Math.floor(passed / 1.5);
+    yamIndex = Math.min(yamIndex, 7);
+
+    return {
+        now,
+        day,
+        thaiMonth,
+        thaiYear,
+        yamIndex: yamIndex + 1,
+        yamKey: seq[yamIndex]
+    };
+}
+
+function generateChart() {
+    const data = getThaiAstrologyData();
+
+    document.getElementById('datetime-display').innerText =
+        `ข้อมูล ณ วันที่ ${data.now.toLocaleDateString('th-TH')} เวลา ${data.now.toLocaleTimeString('th-TH')}`;
+
+    const dayNames = ["","อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"];
+
+    document.getElementById('calculation-info').innerHTML = `
+        <div class="info-item"><b>วัน:</b> ${dayNames[data.day]} (${data.day})</div>
+        <div class="info-item"><b>เดือนไทย:</b> ${data.thaiMonth}</div>
+        <div class="info-item"><b>ปีนักษัตร:</b> ${data.thaiYear}</div>
+        <div class="info-item"><b>ยาม:</b> ยามที่ ${data.yamIndex}
+            (<span class="highlight-yam">เลข ${data.yamKey}</span>)
+        </div>
+    `;
+
+    const body = document.getElementById('chart-body');
+    body.innerHTML = "";
+
+    const labels = ["แถว 1 (วัน)", "แถว 2 (เดือน)", "แถว 3 (ปี)", "แถว 4 (ฐาน 4)"];
+    const rows = [[], [], [], []];
+
+    for (let i = 0; i < 7; i++) {
+        rows[0][i] = (data.day + i) % 7 || 7;
+        rows[1][i] = (data.thaiMonth + i) % 7 || 7;
+        rows[2][i] = (data.thaiYear + i) % 7 || 7;
+        rows[3][i] = rows[0][i] + rows[1][i] + rows[2][i];
+    }
+
+    rows.forEach((row, r) => {
+        const tr = document.createElement('tr');
+        const label = document.createElement('td');
+        label.className = "row-label";
+        label.innerText = labels[r];
+        tr.appendChild(label);
+
+        row.forEach(val => {
+            const td = document.createElement('td');
+            if (r === 3) td.className = "base-4";
+            td.innerText = val;
+            tr.appendChild(td);
+        });
+
+        body.appendChild(tr);
+    });
+}
+
+generateChart();
+</script>
+</body>
+  </html>
