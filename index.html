@@ -48,3 +48,87 @@
             <tr id="row2" class="digit-cell"></tr>
             <tr id="row3" class="digit-cell"></tr>
             <tr id="row4" class="digit-cell row-base"></tr>
+        </tbody>
+    </table>
+
+    <div id="summaryInfo" class="info-panel" style="display:none;"></div>
+</div>
+
+<script>
+    const houses = [
+        ["อัตตะ", "ตนุ", "มรณะ"],
+        ["หินะ", "กดุมภะ", "สุภะ"],
+        ["ธนัง", "สหัชชะ", "กัมมะ"],
+        ["ปิตา", "พันธุ", "ลาภะ"],
+        ["มาตา", "ปุตตะ", "พยายะ"],
+        ["โภคา", "อริ", "ทาสา"],
+        ["มัชฌิมา", "ปัตนิ", "ทาสี"]
+    ];
+    const yamSequence = [1, 6, 4, 2, 7, 5, 3];
+
+    function setNow() {
+        const now = new Date();
+        document.getElementById('inputDate').valueAsDate = now;
+        document.getElementById('inputTime').value = now.toTimeString().substring(0,5);
+        calculateYam();
+    }
+
+    function calculateYam() {
+        const dIn = document.getElementById('inputDate').value;
+        const tIn = document.getElementById('inputTime').value;
+        if(!dIn || !tIn) return;
+
+        let dt = new Date(dIn + 'T' + tIn);
+        let dayOfWeek = dt.getDay() === 0 ? 1 : dt.getDay() + 1;
+        let hours = dt.getHours();
+        let minutes = dt.getMinutes();
+        let totalMin = (hours * 60) + minutes;
+
+        let bioDay = (hours < 6) ? (dayOfWeek === 1 ? 7 : dayOfWeek - 1) : dayOfWeek;
+        let isNight = (totalMin >= 1080 || totalMin < 360);
+        let refTime = isNight ? (totalMin < 360 ? totalMin + 1440 : totalMin) - 1080 : totalMin - 360;
+        let yamIdx = Math.floor(refTime / 90) + 1;
+        
+        let firstY = isNight ? ((bioDay + 4 > 7) ? bioDay + 4 - 7 : bioDay + 4) : bioDay;
+        let mYam = firstY;
+        for(let i=1; i < yamIdx; i++) {
+            let next = yamSequence.indexOf(mYam) + 1;
+            mYam = yamSequence[next > 6 ? 0 : next];
+        }
+
+        let minInYam = refTime % 90;
+        let lYamIdx = Math.floor(minInYam / 12.85) + 1;
+        let lYam = (mYam + lYamIdx - 1) > 7 ? (mYam + lYamIdx - 1) % 7 || 7 : (mYam + lYamIdx - 1);
+
+        renderTable(bioDay, mYam, lYam, isNight, yamIdx, lYamIdx);
+    }
+
+    function renderTable(d, y, ly, night, yIdx, lyIdx) {
+        let hHtml = '';
+        houses.forEach(group => {
+            hHtml += `<th><div class="house-group">${group[0]}</div><div class="house-group">${group[1]}</div><div class="house-group">${group[2]}</div></th>`;
+        });
+        document.getElementById('headerRow').innerHTML = hHtml;
+
+        const res = [[], [], [], []];
+        for(let i=0; i<7; i++) {
+            let v1 = (d + i) > 7 ? (d + i) % 7 || 7 : (d + i);
+            let v2 = (y + i) > 7 ? (y + i) % 7 || 7 : (y + i);
+            let v3 = (ly + i) > 7 ? (ly + i) % 7 || 7 : (ly + i);
+            res[0].push(v1); res[1].push(v2); res[2].push(v3); res[3].push(v1 + v2 + v3);
+        }
+
+        for(let j=0; j<4; j++) {
+            document.getElementById(`row${j+1}`).innerHTML = res[j].map(v => `<td>${v}</td>`).join('');
+        }
+
+        const info = document.getElementById('summaryInfo');
+        info.style.display = 'block';
+        info.innerHTML = `<strong>ยาม ${yIdx} (${night ? 'กลางคืน' : 'กลางวัน'}) | ลูกยามที่ ${lyIdx}</strong><br>รหัส: ${res[0][0]} - ${res[1][0]} - ${res[2][0]} ฐาน ${res[3][0]}`;
+    }
+
+    window.onload = setNow;
+</script>
+
+</body>
+</html>
