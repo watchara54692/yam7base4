@@ -3,37 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Energy Star Decoder - เลข 7 ตัว 4 ฐาน</title>
+    <title>Energy Star Decoder - 7 ตัว 4 ฐาน</title>
     <style>
         :root {
             --primary: #2c3e50;
             --accent: #e74c3c;
             --gold: #f1c40f;
             --bg: #f4f7f6;
+            --cell-border: #dee2e6;
         }
-        body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--primary); margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: var(--primary); }
+        body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--primary); margin: 0; padding: 10px; }
+        .container { max-width: 100%; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        h1 { text-align: center; font-size: 1.5rem; margin-bottom: 15px; }
         
-        .control-panel { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
-        input, select, button { padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
-        button { background: var(--primary); color: white; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #34495e; }
+        .control-panel { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+        input, select, button { padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9rem; }
+        button { background: var(--primary); color: white; border: none; cursor: pointer; padding: 8px 16px; }
 
-        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; text-align: center; }
-        th, td { border: 1px solid #eee; padding: 10px; font-size: 0.9em; }
-        th { background: #f9f9f9; }
-        .base4 { background: #fff3cd; font-weight: bold; }
-
-        .rank-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; align-items: center; }
-        .rank-number { width: 30px; height: 30px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .energy-bar { height: 10px; background: #e0e0e0; border-radius: 5px; flex-grow: 1; margin: 0 15px; overflow: hidden; }
-        .energy-fill { height: 100%; background: linear-gradient(90deg, #3498db, #2ecc71); transition: width 0.5s; }
+        /* ปรับปรุงตารางให้พอดีหน้าจอ */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; min-width: 340px; table-layout: fixed; }
+        td { border: 1px solid var(--cell-border); padding: 4px 2px; text-align: center; vertical-align: middle; }
         
-        .info-box { margin-top: 15px; font-size: 0.85em; color: #666; border-left: 4px solid var(--gold); padding-left: 10px; }
+        /* สไตล์ชื่อภพและตัวเลขดาว */
+        .house-label { font-size: 0.65rem; color: #7f8c8d; display: block; margin-bottom: 2px; white-space: nowrap; overflow: hidden; }
+        .star-num { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
+        .base4-row { background-color: #fff9db; }
+        .base4-label { font-size: 0.6rem; font-weight: bold; color: #96701c; }
+        .base4-num { font-size: 1.1rem; font-weight: 800; color: #d35400; }
+
+        .dashboard { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
+        @media (min-width: 992px) { .dashboard { grid-template-columns: 1.2fr 0.8fr; } }
+
+        .info-box { background: #f8f9fa; border-left: 4px solid var(--gold); padding: 10px; margin-bottom: 10px; font-size: 0.85rem; border-radius: 0 6px 6px 0; }
+        
+        /* Ranking Style */
+        .rank-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .rank-circle { width: 28px; height: 28px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; margin-right: 10px; flex-shrink: 0; }
+        .energy-track { flex-grow: 1; height: 8px; background: #eee; border-radius: 4px; margin: 0 10px; overflow: hidden; }
+        .energy-fill { height: 100%; background: linear-gradient(90deg, #3498db, #2ecc71); border-radius: 4px; transition: width 0.6s ease; }
+        .score-text { font-size: 0.8rem; font-weight: bold; width: 55px; text-align: right; }
     </style>
 </head>
 <body>
@@ -47,23 +56,23 @@
         <button onclick="calculateAll()">ถอดรหัสพลังงาน</button>
     </div>
 
+    <div class="table-responsive" id="chartOutput"></div>
+
     <div class="dashboard">
-        <div class="chart-section">
-            <h3>📊 ดวงเลข 7 ตัว 4 ฐาน</h3>
-            <div id="chartOutput"></div>
+        <div class="details-section">
             <div id="thaksaOutput" class="info-box"></div>
             <div id="yarnOutput" class="info-box"></div>
         </div>
 
         <div class="rank-section">
-            <h3>🔥 Top 5 พลังงานดาวสูงสุด</h3>
+            <h3 style="font-size: 1.1rem; margin-top: 0;">🔥 Top 5 พลังงานดาวสูงสุด</h3>
             <div id="rankOutput"></div>
         </div>
     </div>
 </div>
 
 <script>
-    // ข้อมูลภพ 21 ภพ
+    // 21 ภพ มาตรฐานเลข 7 ตัว
     const houseNames = [
         ["อัตตา", "หินะ", "ธนัง", "ปิตา", "มาตา", "โภคา", "มัชฌิมา"],
         ["ตนุ", "กดุมพะ", "สหัชชะ", "พันธุ", "ปุตตะ", "อริ", "ปัตนิ"],
@@ -73,11 +82,11 @@
     function calculateAll() {
         const dateInput = document.getElementById('inputDate').value;
         const timeInput = document.getElementById('inputTime').value;
-        if (!dateInput) return alert("กรุณาเลือกวันที่");
+        if (!dateInput) return;
 
         const date = new Date(dateInput);
-        const dayOfWeek = date.getDay() === 0 ? 7 : date.getDay(); // 1=อาทิตย์, 7=เสาร์
-        const month = date.getMonth() + 1; // แบบง่าย (ควรเป็นเดือนไทย แต่เพื่อความสะดวกของ Web app จะใช้เดือนสากลแทน)
+        const dayOfWeek = date.getDay() === 0 ? 7 : date.getDay(); 
+        const month = (date.getMonth() + 1); // แบบจำลองเดือน
         const year = (date.getFullYear() + 543) % 7 || 7;
 
         // 1. ตั้งดวง 3 แถว
@@ -94,43 +103,58 @@
             base4.push(chart[0][i] + chart[1][i] + chart[2][i]);
         }
 
-        // 3. ทักษาจร (ใช้แบบวันเกิด)
+        // 3. ทักษา (อิงตามวันปัจจุบัน)
         const thaksaNames = ["บริวาร", "อายุ", "เดช", "ศรี", "มูละ", "อุตสาหะ", "มนตรี", "กาลกิณี"];
-        const thaksaMap = [1, 2, 3, 4, 7, 5, 8, 6]; // เรียงตามเข็มนาฬิกา
+        const thaksaMap = [1, 2, 3, 4, 7, 5, 8, 6]; 
         let dailyThaksa = {};
         let startIdx = thaksaMap.indexOf(dayOfWeek);
         for(let i=0; i<8; i++) {
             dailyThaksa[thaksaMap[(startIdx + i) % 8]] = thaksaNames[i];
         }
 
-        // 4. ยามอัฐกาล (16.00 น.)
+        // 4. ยามอัฐกาล
         const hour = parseInt(timeInput.split(':')[0]);
-        const yarnOrder = [1, 6, 4, 2, 7, 5, 3]; // ยามกลางวัน
-        const yarnIdx = Math.floor((hour - 6) / 1.5); // ช่วงละ 90 นาที เริ่ม 06:00
+        const mins = parseInt(timeInput.split(':')[1]);
+        const totalMins = (hour * 60) + mins;
+        const yarnOrder = [1, 6, 4, 2, 7, 5, 3]; 
         let currentYarn = 0;
-        if (yarnIdx >= 0 && yarnIdx < 8) {
-            let dayStartIdx = [0, 1, 2, 3, 4, 5, 6][dayOfWeek-1]; // แก้ Index ตามวัน
+        
+        // คำนวณช่วงยาม (06:00 - 18:00 แบ่ง 8 ช่วงๆ ละ 90 นาที)
+        if (totalMins >= 360 && totalMins <= 1080) {
+            let yarnIdx = Math.floor((totalMins - 360) / 90);
+            let dayStartIdx = [0, 1, 2, 3, 4, 5, 6][dayOfWeek-1];
             currentYarn = yarnOrder[(dayStartIdx + yarnIdx) % 7];
         }
 
         renderChart(chart, base4);
         calculateEnergyRanking(chart, base4, dailyThaksa, currentYarn);
         
-        document.getElementById('thaksaOutput').innerHTML = `<b>ทักษาประจำวัน:</b> ${dailyThaksa[dayOfWeek]} คือบริวาร ... (ดาว ${Object.keys(dailyThaksa).find(key => dailyThaksa[key] === 'ศรี')} เป็นศรี)`;
-        document.getElementById('yarnOutput').innerHTML = `<b>ยามช่วงเวลา ${timeInput} น.:</b> ดาว ${currentYarn || 'นอกเวลาคำนวณ'} เป็นเจ้าการ`;
+        const sriStar = Object.keys(dailyThaksa).find(k => dailyThaksa[k] === 'ศรี');
+        document.getElementById('thaksaOutput').innerHTML = `<b>ทักษา:</b> วันนี้ดาว ${dayOfWeek} เป็นบริวาร และดาว ${sriStar} เป็น <b>"ศรี"</b>`;
+        document.getElementById('yarnOutput').innerHTML = `<b>ยาม ${timeInput} น.:</b> ดาว ${currentYarn || '-'} เป็นเจ้าการช่วงเวลา`;
     }
 
     function renderChart(chart, base4) {
-        let html = '<table><tr>';
-        houseNames[0].forEach(h => html += `<th>${h}</th>`);
-        html += '</tr>';
+        let html = '<table>';
+        // แสดง 3 แถวหลักพร้อมชื่อภพในตัว
         for (let r = 0; r < 3; r++) {
             html += '<tr>';
-            chart[r].forEach(v => html += `<td>${v}</td>`);
+            for (let c = 0; c < 7; c++) {
+                html += `<td>
+                            <span class="house-label">${houseNames[r][c]}</span>
+                            <span class="star-num">${chart[r][c]}</span>
+                         </td>`;
+            }
             html += '</tr>';
         }
-        html += '<tr class="base4">';
-        base4.forEach(v => html += `<td>${v}</td>`);
+        // แถวฐานที่ 4
+        html += '<tr class="base4-row">';
+        base4.forEach(v => {
+            html += `<td>
+                        <span class="base4-label">ฐาน 4</span>
+                        <span class="base4-num">${v}</span>
+                     </td>`;
+        });
         html += '</tr></table>';
         document.getElementById('chartOutput').innerHTML = html;
     }
@@ -138,60 +162,47 @@
     function calculateEnergyRanking(chart, base4, thaksa, yarn) {
         let scores = { 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 };
 
-        // Logic การให้คะแนน
         for (let i = 0; i < 7; i++) {
             for (let r = 0; r < 3; r++) {
                 let star = chart[r][i];
                 let house = houseNames[r][i];
-                
-                // คะแนนจากภพดี/เสีย
-                if (["ลาภะ", "ศุภะ", "ธนัง", "มนตรี"].includes(house)) scores[star] += 5;
-                if (["อริ", "มรณะ", "พยายะ"].includes(house)) scores[star] -= 5;
+                if (["ลาภะ", "ศุภะ", "ธนัง", "มนตรี", "โภคา", "ปัตนิ"].includes(house)) scores[star] += 6;
+                if (["อริ", "มรณะ", "พยายะ", "หินะ"].includes(house)) scores[star] -= 7;
 
-                // คะแนนจากฐานที่ 4 (สำคัญที่สุดตามลำดับความเข้มข้น)
                 let b4 = base4[i];
                 if ([16, 14, 13, 19, 21].includes(b4)) scores[star] += 15;
                 if ([10, 20, 9].includes(b4)) scores[star] += 8;
-                if ([7, 11, 12].includes(b4)) scores[star] -= 5;
+                if ([7, 11, 12].includes(b4)) scores[star] -= 6;
             }
         }
 
-        // คะแนนจากทักษา
         for (let star in scores) {
             if (thaksa[star] === "ศรี") scores[star] += 12;
-            if (thaksa[star] === "มนตรี") scores[star] += 8;
+            if (thaksa[star] === "มนตรี") scores[star] += 7;
             if (thaksa[star] === "กาลกิณี") scores[star] -= 15;
-            if (parseInt(star) === yarn) scores[star] *= 1.3; // ยามคูณพลังงาน
+            if (parseInt(star) === yarn) scores[star] += 10; 
         }
 
-        // จัดลำดับ
-        let sorted = Object.entries(scores)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 5);
+        let sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]).slice(0, 5);
+        let maxScore = Math.max(...Object.values(scores), 1);
 
         let rankHtml = '';
-        let maxScore = sorted[0][1];
         sorted.forEach((item, idx) => {
-            let starNum = item[0];
-            let score = item[1].toFixed(1);
-            let width = (item[1] / maxScore) * 100;
-            if (width < 10) width = 10;
-
+            let width = Math.max((item[1] / maxScore) * 100, 5);
             rankHtml += `
                 <div class="rank-item">
-                    <div class="rank-number">${idx + 1}</div>
-                    <div style="width: 60px; font-weight:bold;">ดาว ${starNum}</div>
-                    <div class="energy-bar"><div class="energy-fill" style="width: ${width}%"></div></div>
-                    <div style="font-size: 0.8em;">${score} Pts</div>
+                    <div class="rank-circle">${idx + 1}</div>
+                    <div style="font-weight:bold; width:50px; font-size:0.9rem;">ดาว ${item[0]}</div>
+                    <div class="energy-track"><div class="energy-fill" style="width: ${width}%"></div></div>
+                    <div class="score-text">${item[1].toFixed(1)}</div>
                 </div>`;
         });
         document.getElementById('rankOutput').innerHTML = rankHtml;
     }
 
-    // Initialize
     document.getElementById('inputDate').valueAsDate = new Date();
     calculateAll();
 </script>
 
 </body>
-  </html>
+        </html>
