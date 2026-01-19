@@ -3,39 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7-Digit Master Tool</title>
+    <title>7-Digit Master (Plu Luang System)</title>
     <style>
         :root { --primary: #1a2a3a; --gold: #c5a02e; --bg: #fdfdfd; --bad: #ffebee; --good: #fff9c4; --kalakini: #ffcdd2; --chakraphat: #ffd700; }
         body { font-family: 'Tahoma', sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
         .container { background: white; border: 1px solid #ddd; border-radius: 8px; max-width: 650px; width: 100%; padding: 12px; box-sizing: border-box; }
-        
         .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        input, button { padding: 12px; border-radius: 5px; border: 1px solid #ccc; font-size: 15px; outline: none; }
+        input, button { padding: 12px; border-radius: 5px; border: 1px solid #ccc; font-size: 15px; }
         button { cursor: pointer; background: var(--primary); color: white; border: none; font-weight: bold; }
         .btn-now { background: var(--gold); }
-
         .result-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        td { border: 1px solid #333; text-align: center; vertical-align: middle; padding: 6px 0; height: 60px; cursor: pointer; transition: 0.2s; position: relative; }
-        td:hover { background: #f0f0f0; }
-        
+        td { border: 1px solid #333; text-align: center; vertical-align: middle; padding: 6px 0; height: 60px; cursor: pointer; transition: 0.2s; }
         .house-label { font-size: 9px; color: #666; display: block; }
         .digit-value { font-size: 22px; font-weight: bold; display: block; }
-        
-        /* Highlight Styles */
         .is-bad-house { background: var(--bad); }
         .is-kalakini { background: var(--kalakini) !important; color: #b71c1c; }
         .is-good-base { background: var(--good); border: 2px solid var(--gold); }
-        .is-personal-id { border: 2px dashed var(--primary); } /* สำหรับรหัส 7-4-3 */
-
         .row-base { border-top: 2px solid #333; }
         .base-label { font-size: 9px; font-weight: bold; color: #b71c1c; }
         .base-value { font-size: 22px; font-weight: bold; color: #b71c1c; }
-        
-        /* Details Box */
-        .details-panel { margin-top: 15px; padding: 12px; background: #fff; border: 2px solid var(--primary); border-radius: 8px; font-size: 14px; min-height: 80px; }
+        .details-panel { margin-top: 15px; padding: 12px; background: #fff; border: 2px solid var(--primary); border-radius: 8px; font-size: 14px; min-height: 100px; }
         .details-title { font-weight: bold; color: var(--primary); border-bottom: 1px solid #ddd; margin-bottom: 8px; }
-        .highlight-text { color: #d32f2f; font-weight: bold; }
-        .success-text { color: #2e7d32; font-weight: bold; }
+        .good-text { color: #2e7d32; font-weight: bold; }
+        .bad-text { color: #d32f2f; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -47,14 +37,10 @@
         <button class="btn-now" onclick="setNow()">เวลาปัจจุบัน</button>
         <button onclick="calculateYam()">ตั้งดวงยาม</button>
     </div>
-
-    <table class="result-table">
-        <tbody id="tableBody"></tbody>
-    </table>
-
+    <table class="result-table"><tbody id="tableBody"></tbody></table>
     <div id="detailsBox" class="details-panel">
-        <div class="details-title">คำวิเคราะห์จุดเด่น/จุดระวัง</div>
-        <div id="detailsContent">คลิกที่ช่องตัวเลขหรือฐานเพื่อดูความหมายเชิงลึก</div>
+        <div class="details-title">วิเคราะห์กำลังดาว (คลิกที่เลขฐานเพื่อดูรายละเอียด)</div>
+        <div id="detailsContent">สัมผัสที่ตัวเลขเพื่ออ่านคำทำนายตามตำราพลูหลวง</div>
     </div>
 </div>
 
@@ -64,22 +50,28 @@
         ["ตนุ", "กดุมภะ", "สหัชชะ", "พันธุ", "ปุตตะ", "อริ", "ปัตนิ"],
         ["มรณะ", "สุภะ", "กัมมะ", "ลาภะ", "พยายะ", "ทาสา", "ทาสี"]
     ];
-    
-    // ข้อมูลกาลกิณี (ทักษา) 1=Sun...7=Sat
     const kalakiniMap = { 1: 6, 2: 1, 3: 2, 4: 3, 5: 7, 6: 5, 7: 4 };
-    const goodBases = [14, 15, 16, 19];
-    const personalID = [7, 4, 3]; // รหัสประจำตัวของคุณ
-    const badHouses = ["หินะ", "อริ", "มรณะ", "พยายะ"];
 
-    const baseMeanings = {
-        14: "ฐานจักรพรรดิ: ความสำเร็จที่ยิ่งใหญ่ มั่นคง มีอำนาจตัดสินใจเด็ดขาด",
-        15: "ฐานกำลังพระอาทิตย์: โชคลาภกะทันหัน มีชื่อเสียง แสงสว่างในการแก้ปัญหา",
-        16: "ฐานโสฬสมงคล: ความสำเร็จสมบูรณ์แบบ มีการคุ้มครองจากสิ่งศักดิ์สิทธิ์",
-        19: "ฐานกำลังพระพฤหัสบดี: ผู้ใหญ่เมตตา ประสบความสำเร็จด้านวิชาการ/ความรู้",
-        7: "ฐานกำลังพระเสาร์: ความเหนื่อยยาก การรอคอยที่ยาวนาน หรือความเครียดสะสม",
-        13: "ฐานมหาอุจ/กำลังอังคาร: ความรุนแรง การปะทะ หรือการเปลี่ยนแปลงกะทันหัน",
-        10: "ฐานกำลังพระเสาร์ (0): การพลิกผัน ความลับ หรือเรื่องที่คาดไม่ถึง",
-        9: "ฐานพระเกตุ: โชคลาภจากสิ่งศักดิ์สิทธิ์ ลางสังหรณ์แม่นยำ"
+    const baseData = {
+        3: { name: "กำลังดาวจันทร์ (เล็ก)", good: "มีเสน่ห์ เมตตา ได้รับความช่วยเหลือจากผู้หญิง", bad: "โลเล เปลี่ยนใจง่าย ขาดความเด็ดขาด" },
+        4: { name: "กำลังดาวพุธ (เล็ก)", good: "เจรจาคล่องแคล่ว มีไหวพริบในงานเอกสาร", bad: "ระวังคำพูดสร้างศัตรู หรือเอกสารผิดพลาด" },
+        5: { name: "กำลังดาวพฤหัส (เล็ก)", good: "มีความรู้ มีคุณธรรม สนใจใฝ่เรียนรู้", bad: "ดื้อรั้น ยึดติดตำราจนเกินไป" },
+        6: { name: "กำลังดาวอาทิตย์", good: "เกียรติยศ ชื่อเสียง พลังสร้างสรรค์สูง", bad: "ใจร้อน ถือตัว ทะเยอทะยานจนเดือดร้อน" },
+        7: { name: "กำลังดาวเสาร์ (เล็ก)", good: "มีความอดทนสูง ทำงานหนักได้ดี", bad: "เครียด วิตกกังวล อมทุกข์" },
+        8: { name: "กำลังดาวอังคาร", good: "ขยัน กล้าหาญ ตัดสินใจรวดเร็วชนะศัตรู", bad: "ระวังอุบัติเหตุ การทะเลาะวิวาท โทสะแรง" },
+        9: { name: "กำลังพระเกตุ", good: "ลางสังหรณ์แม่นยำ มีสิ่งศักดิ์สิทธิ์คุ้มครอง โชคลาภกะทันหัน", bad: "เพ้อฝัน ฟุ้งซ่าน เข้าใจยาก" },
+        10: { name: "กำลังดาวเสาร์", good: "ความมั่นคงระยะยาว การวางแผนที่รอบคอบ", bad: "ภาระหนักอึ้ง หนี้สิน หรือความเศร้าที่ยาวนาน" },
+        11: { name: "ราชาโชค", good: "โชคลาภจากผู้อื่นหยิบยื่นให้ ได้มาโดยง่ายไม่ต้องเหนื่อยมาก", bad: "ประมาท ขาดสติเพราะได้อะไรมาง่ายเกินไป" },
+        12: { name: "กำลังดาวราหู", good: "ต่างประเทศ ธุรกิจสีเทา ไหวพริบพลิกแพลงเก่ง", bad: "ความมัวเมา หลงผิด ถูกหลอกลวง" },
+        13: { name: "มหาอุจ / กำลังอังคาร", good: "พลังอำนาจสูงสุด ชนะทุกอุปสรรค แข็งแกร่ง", bad: "เผด็จการ แตกหักง่าย ใช้อารมณ์เป็นใหญ่" },
+        14: { name: "จักรพรรดิ", good: "ความสำเร็จที่ยิ่งใหญ่ มั่นคง มีบารมีและบริวาร", bad: "ต้องแบกรับภาระที่ยิ่งใหญ่เกินตัว" },
+        15: { name: "กำลังดาวจันทร์", good: "เมตตามหานิยม ทรัพย์สินเงินทองไหลลื่น มีความสุข", bad: "ใจอ่อนจนเสียการ ฟุ่มเฟือย หวั่นไหวตามคนอื่น" },
+        16: { name: "โสฬสมงคล", good: "มงคลสูงสุด ความสำเร็จรอบด้าน ปลอดภัยจากอันตราย", bad: "หากทำชั่วจะส่งผลร้ายรุนแรงกว่าปกติ" },
+        17: { name: "กำลังดาวพุธ", good: "สติปัญญาเลิศ การเจรจาเป็นเงินเป็นทอง ธุรกิจรุ่งเรือง", bad: "คิดมากจนปวดหัว ลิ้นทูตอาจกลายเป็นหลอกลวง" },
+        18: { name: "มหาจักร", good: "ความสำเร็จที่ยิ่งใหญ่แต่ต้องฝ่าฟัน ลุยแล้วได้ดี", bad: "ต้องเหนื่อยสายตัวแทบขาดกว่าจะเห็นผล" },
+        19: { name: "กำลังดาวพฤหัส", good: "ผู้ใหญ่เมตตา ประสบความสำเร็จทางวิชาการ ความก้าวหน้าที่มั่นคง", bad: "มักถูกผู้อื่นคาดหวังสูงจนกดดัน" },
+        20: { name: "กำลังดาวเสาร์ (กำลังสอง)", good: "ความอดทนเหนือมนุษย์ การจัดการโครงการใหญ่มาก", bad: "ทุกข์หนัก ภาระรัดตัว หรือปัญหาสุขภาพเรื้อรัง" },
+        21: { name: "กำลังดาวศุกร์", good: "ทรัพย์สินมหาศาล ความรักสดใส ความรื่นรมย์ในชีวิต", bad: "หลงระเริงในกามารมณ์ หรือกิเลสครอบงำ" }
     };
 
     function setNow() {
@@ -93,18 +85,14 @@
         const dIn = document.getElementById('inputDate').value;
         const tIn = document.getElementById('inputTime').value;
         if(!dIn || !tIn) return;
-
         let dt = new Date(dIn + 'T' + tIn);
         let dayOfWeek = dt.getDay() === 0 ? 1 : dt.getDay() + 1;
         let hours = dt.getHours();
-        let minutes = dt.getMinutes();
-        let totalMin = (hours * 60) + minutes;
-
+        let totalMin = (hours * 60) + dt.getMinutes();
         let bioDay = (hours < 6) ? (dayOfWeek === 1 ? 7 : dayOfWeek - 1) : dayOfWeek;
         let isNight = (totalMin >= 1080 || totalMin < 360);
         let refTime = isNight ? (totalMin < 360 ? totalMin + 1440 : totalMin) - 1080 : totalMin - 360;
         let yamIdx = Math.floor(refTime / 90) + 1;
-        
         let firstY = isNight ? ((bioDay + 4 > 7) ? bioDay + 4 - 7 : bioDay + 4) : bioDay;
         const yamSequence = [1, 6, 4, 2, 7, 5, 3];
         let mYam = firstY;
@@ -112,68 +100,49 @@
             let next = yamSequence.indexOf(mYam) + 1;
             mYam = yamSequence[next > 6 ? 0 : next];
         }
-
         let lYam = (mYam + Math.floor((refTime % 90) / 12.85)) % 7 || 7;
         renderTable(bioDay, mYam, lYam);
     }
 
-    function renderTable(bioDay, y, ly) {
+    function renderTable(d, y, ly) {
         const tableBody = document.getElementById('tableBody');
         tableBody.innerHTML = '';
-        const kalakini = kalakiniMap[bioDay];
-        const results = [[], [], []];
-        const baseRow = [];
-
+        const kala = kalakiniMap[d];
+        const res = [[], [], []];
+        const base = [];
         for(let i=0; i<7; i++) {
-            results[0].push((bioDay + i) > 7 ? (bioDay + i) % 7 || 7 : (bioDay + i));
-            results[1].push((y + i) > 7 ? (y + i) % 7 || 7 : (y + i));
-            results[2].push((ly + i) > 7 ? (ly + i) % 7 || 7 : (ly + i));
-            baseRow.push(results[0][i] + results[1][i] + results[2][i]);
+            res[0].push((d + i) % 7 || 7); res[1].push((y + i) % 7 || 7); res[2].push((ly + i) % 7 || 7);
+            base.push(res[0][i] + res[1][i] + res[2][i]);
         }
-
         for(let r=0; r<3; r++) {
             let tr = document.createElement('tr');
             for(let c=0; c<7; c++) {
-                let val = results[r][c];
-                let house = houseList[r][c];
-                let cls = val === kalakini ? 'is-kalakini' : (badHouses.includes(house) ? 'is-bad-house' : '');
-                if(personalID.includes(val)) cls += ' is-personal-id';
-                
-                tr.innerHTML += `<td class="${cls}" onclick="showInfo('${house}', ${val}, ${kalakini})">
-                    <span class="house-label">${house}</span>
-                    <span class="digit-value">${val}</span>
-                </td>`;
+                let v = res[r][c]; let h = houseList[r][c];
+                let cls = v === kala ? 'is-kalakini' : (["หินะ", "อริ", "มรณะ", "พยายะ"].includes(h) ? 'is-bad-house' : '');
+                tr.innerHTML += `<td class="${cls}" onclick="showInfo('${h}',${v},${kala})"><span class="house-label">${h}</span><span class="digit-value">${v}</span></td>`;
             }
             tableBody.appendChild(tr);
         }
-
-        let trBase = document.createElement('tr');
-        trBase.className = 'row-base';
+        let trB = document.createElement('tr'); trB.className = 'row-base';
         for(let b=0; b<7; b++) {
-            let baseVal = baseRow[b];
-            let cls = goodBases.includes(baseVal) ? 'is-good-base' : '';
-            trBase.innerHTML += `<td class="${cls}" onclick="showBaseInfo(${baseVal})">
-                <span class="base-label">ฐาน</span>
-                <span class="base-value">${baseVal}</span>
-            </td>`;
+            let v = base[b]; let cls = [14, 15, 16, 19].includes(v) ? 'is-good-base' : '';
+            trB.innerHTML += `<td class="${cls}" onclick="showBaseInfo(${v})"><span class="base-label">ฐาน</span><span class="base-value">${v}</span></td>`;
         }
-        tableBody.appendChild(trBase);
+        tableBody.appendChild(trB);
     }
 
-    function showInfo(house, val, kala) {
-        let txt = `ภพ <strong>${house}</strong>: ดาวเลข <strong>${val}</strong> `;
-        if(val === kala) txt += `<br><span class="highlight-text">ระวัง! เป็นดาวกาลกิณีประจำวัน</span> ทำให้ภพนี้เกิดอุปสรรคหรือความมัวหมอง`;
-        if(badHouses.includes(house)) txt += `<br><span class="highlight-text">จุดระวัง!</span> เป็นภพเสีย (อริ/มรณะ/พยายะ) อาจเกิดปัญหาหรือการสูญเสีย`;
-        if(personalID.includes(val)) txt += `<br><span class="success-text">จุดเน้น!</span> สัมพันธ์กับรหัสตัวตนของคุณ (7-4-3) ให้ผลแรงเป็นพิเศษ`;
+    function showInfo(h, v, k) {
+        let txt = `ภพ <strong>${h}</strong>: ดาว <strong>${v}</strong>`;
+        if(v === k) txt += `<br><span class="bad-text">กาลกิณีวัน:</span> เกิดอุปสรรค ขัดแย้ง ห้ามทำการมงคลในภพนี้`;
         document.getElementById('detailsContent').innerHTML = txt;
     }
 
-    function showBaseInfo(base) {
-        let meaning = baseMeanings[base] || "ฐานกำลังดาวทั่วไป พิจารณาความสัมพันธ์กับดาวด้านบน";
-        document.getElementById('detailsContent').innerHTML = `<strong>ฐานที่ 4: เลข ${base}</strong><br>${meaning}`;
+    function showBaseInfo(b) {
+        const data = baseData[b] || { name: "ฐานทั่วไป", good: "พิจารณาตามดาวประธาน", bad: "พิจารณาตามภพที่สถิต" };
+        document.getElementById('detailsContent').innerHTML = `<strong>ฐานที่ 4: ${b} (${data.name})</strong><br><span class="good-text">จุดดี:</span> ${data.good}<br><span class="bad-text">จุดเสีย:</span> ${data.bad}`;
     }
 
     window.onload = setNow;
 </script>
 </body>
-    </html>
+</html>
