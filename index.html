@@ -74,6 +74,11 @@
         <div class="tips-header">💡 ข้อมูลเชิงลึกของดาว (Star Tips)</div>
         <div id="tipsContent" class="tips-content">กดเลือกดาวในตารางเพื่อดูความหมายโดยละเอียด</div>
     </div>
+    <button style="margin-top: 20px; text-align: center;">
+    <button onclick="copyPromptForAI()" style="background: #4285f4; padding: 15px 30px; border-radius: 50px; cursor: pointer; color: white; border: none; font-weight: bold; width: 100%;">
+        📋 คัดลอกข้อมูลส่งให้ AI วิเคราะห์เชิงลึก
+    </button>
+    </div>
 </div>
 
 <script>
@@ -272,6 +277,28 @@
             </div>
         `;
     }
+    
+function copyPromptForAI() {
+    const dIn = document.getElementById('inputDate').value;
+    const tIn = document.getElementById('inputTime').value;
+    
+    let chartText = `ช่วยวิเคราะห์ดวงยาม 7 ตัว 4 ฐาน ของวันที่ ${dIn} เวลา ${tIn} ให้หน่อย\n`;
+    chartText += `ตำแหน่งภพและดาว:\n`;
+    
+    for(let r=0; r<3; r++) {
+        chartText += `แถวที่ ${r+1}: ${currentGrid[r].join(', ')}\n`;
+    }
+    chartText += `ฐานที่ 4: ${currentBases.join(', ')}\n`;
+    chartText += `มหาทักษา: `;
+    for (let s in dailyThaksa) {
+        chartText += `${s}=${dailyThaksa[s]} `;
+    }
+    
+    navigator.clipboard.writeText(chartText).then(() => {
+        alert("คัดลอกข้อมูลดวงยามเรียบร้อยแล้ว! นำไปวางในแชท AI เพื่อให้วิเคราะห์ต่อได้เลยครับ");
+    });
+}
+
     window.onload = setNow;
 </script>
 </body>
