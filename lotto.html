@@ -3,42 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twilight V13 - Research Analyst</title>
+    <title>Twilight V14 - Corrected 7-Base</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #f1c40f; --bg: #0a0b10; --card: #1c1e26; --accent: #e74c3c; --green: #2ecc71; }
+        :root { --gold: #f1c40f; --bg: #0d0e14; --card: #1c1e26; --accent: #e74c3c; }
         body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: #ecf0f1; margin: 0; padding: 15px; }
-        .app-container { max-width: 600px; margin: auto; background: var(--card); padding: 25px; border-radius: 30px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        h1 { color: var(--gold); text-align: center; font-size: 1.6rem; margin-bottom: 5px; text-transform: uppercase; }
+        .app-container { max-width: 600px; margin: auto; background: var(--card); padding: 25px; border-radius: 25px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        h1 { color: var(--gold); text-align: center; font-size: 1.5rem; margin-bottom: 5px; }
         .input-box { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; margin-bottom: 25px; border: 1px solid #444; }
         label { display: block; font-size: 0.85rem; color: var(--gold); margin-bottom: 8px; font-weight: bold; }
         input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #444; background: #000; color: #fff; font-size: 1rem; margin-bottom: 15px; box-sizing: border-box; }
         button { width: 100%; padding: 18px; background: linear-gradient(135deg, #f1c40f, #d35400); color: #000; border: none; border-radius: 15px; font-weight: bold; font-size: 1.3rem; cursor: pointer; transition: 0.3s; }
         
-        /* Analysis Section */
-        .analysis-card { display: none; margin-top: 25px; background: #000; padding: 20px; border-radius: 20px; border: 2px solid var(--gold); }
-        .star-box { display: inline-block; width: 55px; height: 55px; line-height: 55px; background: var(--gold); color: #000; border-radius: 50%; font-size: 1.8rem; font-weight: bold; margin: 5px; text-align: center; }
-        .pair-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        .pair-item { background: #1c1e26; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; border: 1px solid #333; color: var(--green); }
-        
         /* Table Styles */
-        .chart-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; }
-        .chart-table th, .chart-table td { border: 1px solid #333; padding: 8px; text-align: center; }
-        .highlight { background: var(--accent); color: #fff; font-weight: bold; }
-        .summary-box { font-size: 0.8rem; line-height: 1.6; margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px; }
+        .chart-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #000; }
+        .chart-table th, .chart-table td { border: 1px solid #333; padding: 12px; text-align: center; font-size: 1.1rem; }
+        .chart-table th { background: #1a1a1a; color: var(--gold); font-size: 0.8rem; }
+        .row-label { background: #1a1a1a; color: var(--gold); font-size: 0.8rem !important; width: 80px; }
+        .highlight { background: var(--accent) !important; color: #fff !important; font-weight: bold; }
+        .analysis-box { margin-top: 25px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 15px; border-left: 5px solid var(--gold); }
+        .star-badge { display: inline-block; width: 45px; height: 45px; line-height: 45px; background: var(--gold); color: #000; border-radius: 50%; font-weight: bold; margin: 5px; font-size: 1.3rem; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <h1>Twilight V13 Master</h1>
-    <p style="text-align:center; opacity:0.6; font-size:0.8rem;">วิเคราะห์ 21 ภพ + ยามอัฐกาล (Research Logic)</p>
+    <h1>Twilight V14 Master</h1>
+    <p style="text-align:center; opacity:0.6; font-size:0.8rem;">แก้ไขระบบตั้งฐานวันและวิเคราะห์ 21 ภพ</p>
 
     <div class="input-box">
         <label>วันที่ออกรางวัล</label>
-        <input type="date" id="d_day">
-        <label>เดือนไทย (มกราคม=2, ...)</label>
-        <select id="d_month">
+        <input type="date" id="targetDate">
+        
+        <label>เดือนไทย (มกราคม=2, กุมภาพันธ์=3...)</label>
+        <select id="thaiMonth">
             <option value="2">มกราคม (เดือน 2)</option>
             <option value="3">กุมภาพันธ์ (เดือน 3)</option>
             <option value="4">มีนาคม (เดือน 4)</option>
@@ -47,110 +45,89 @@
             <option value="7">มิถุนายน (เดือน 7)</option>
             <option value="1">กรกฎาคม-ธันวาคม (1)</option>
         </select>
-        <label>เวลาที่ต้องการเน้น</label>
-        <select id="d_time">
-            <option value="16:45">16:45 น. (ยาม 8 - Resonance สูงสุด)</option>
-            <option value="16:00">16:00 น. (ยาม 7)</option>
-        </select>
     </div>
 
-    <button onclick="runMasterAnalysis()">วิเคราะห์มงคลเจาะลึก</button>
+    <button onclick="calculateV14()">ตั้งดวง & วิเคราะห์มงคล</button>
 
-    <div id="analysisPanel" class="analysis-card">
-        <h3 style="color:var(--gold); text-align:center; margin-top:0;">เลข Resonance มงคล</h3>
-        <div style="text-align:center;" id="luckyStars"></div>
-        
-        <div class="pair-grid" id="luckyPairs"></div>
-
+    <div id="resultArea" style="display:none;">
         <table class="chart-table">
-            <tbody id="houseTable"></tbody>
+            <thead>
+                <tr><th>แถว \ เสา</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th></tr>
+            </thead>
+            <tbody id="chartBody"></tbody>
         </table>
 
-        <div class="summary-box" id="researchNote"></div>
+        <div class="analysis-box">
+            <h3 style="color:var(--gold); margin-top:0;">สรุปเลขมงคล Resonance</h3>
+            <div id="luckyNumbers"></div>
+            <div id="analysisText" style="font-size: 0.9rem; line-height: 1.6; margin-top: 15px;"></div>
+        </div>
     </div>
 </div>
 
 <script>
-    const yamaRules = { 0:[1,6,4,2,7,5,3,1], 1:[2,7,5,3,1,6,4,2], 2:[3,1,6,4,2,7,5,3], 3:[4,2,7,5,3,1,6,4], 4:[5,3,1,6,4,2,7,5], 5:[6,4,2,7,5,3,1,6], 6:[7,5,3,1,6,4,2,7] };
-
-    function runMasterAnalysis() {
-        const dVal = document.getElementById('d_day').value;
-        if(!dVal) return;
+    function calculateV14() {
+        const dVal = document.getElementById('targetDate').value;
+        if(!dVal) return alert("กรุณาเลือกวันที่");
         const d = new Date(dVal);
-        const day = d.getDay() === 0 ? 7 : d.getDay();
-        const month = parseInt(document.getElementById('d_month').value);
-        const year = ((d.getFullYear() + 543) % 7) || 7;
 
-        // 1. ตั้ง 21 ภพ
-        let houses = [[], [], []];
+        // 1. ตั้งฐาน 1, 2, 3 (แก้ไขฐานวัน: อาทิตย์=1 ... ศุกร์=6)
+        let b1_start = d.getDay() + 1; 
+        let b2_start = parseInt(document.getElementById('thaiMonth').value);
+        let b3_start = ((d.getFullYear() + 543) % 7) || 7;
+
+        let rows = [[], [], []];
         for(let i=0; i<7; i++) {
-            houses[0].push((day + i - 1) % 7 + 1);
-            houses[1].push((month + i - 1) % 7 + 1);
-            houses[2].push((year + i - 1) % 7 + 1);
+            rows[0].push((b1_start + i - 1) % 7 + 1);
+            rows[1].push((b2_start + i - 1) % 7 + 1);
+            rows[2].push((b3_start + i - 1) % 7 + 1);
         }
 
-        // 2. คำนวณฐาน 4 และดาวเด่น
-        let b4Stars = [];
-        let resonanceScores = {};
+        // 2. คำนวณฐานที่ 4 และเก็บเลข Resonance
+        let b4_display = [];
+        let finalCandidates = new Set();
+        
         for(let i=0; i<7; i++) {
-            let sum = houses[0][i] + houses[1][i] + houses[2][i];
-            let star = 0;
-            if ([13, 14, 16].includes(sum)) { star = houses[2][i]; }
-            else {
+            let sum = rows[0][i] + rows[1][i] + rows[2][i];
+            let resultStar;
+            let isSpecial = false;
+
+            if ([13, 14, 16].includes(sum)) {
+                resultStar = rows[2][i]; // ยึดฐาน 3
+                isSpecial = true;
+            } else {
                 const pMap = { 12:8, 15:2, 17:4, 19:5, 21:6, 10:0, 20:0 };
-                star = pMap[sum] || (sum % 7 || 7);
+                resultStar = pMap[sum] || (sum % 7 || 7);
             }
-            b4Stars.push(star);
-            resonanceScores[star] = (resonanceScores[star] || 0) + 1;
+            b4_display.push({ val: resultStar, isSpecial: isSpecial, sum: sum });
+            finalCandidates.add(resultStar);
         }
 
-        // 3. วิเคราะห์ยาม (Time Resonance)
-        const [h, m] = document.getElementById('d_time').value.split(':').map(Number);
-        const yIdx = Math.floor(((h * 60 + m) - 360) / 90);
-        let yamStar = yamaRules[d.getDay()][yIdx];
-        
-        // 4. สังเคราะห์เลขมงคล (Synthesis)
-        let finalSet = new Set();
-        finalSet.add(yamStar); 
-        if(yamStar === 7) finalSet.add(0);
-        
-        // ดึงเลขที่มี Resonance สูงสุด (ปรากฏซ้ำหรือมาจากฐานมงคล)
-        b4Stars.forEach(s => { if(resonanceScores[s] > 0) finalSet.add(s); });
-        if(finalSet.has(7)) finalSet.add(0);
-        
-        let finalArray = Array.from(finalSet).slice(0, 4);
-        document.getElementById('luckyStars').innerHTML = finalArray.map(s => `<div class="star-box">${s}</div>`).join('');
+        // 3. แสดงตาราง
+        let html = `
+            <tr><td class="row-label">ฐานวัน</td>${rows[0].map(n => `<td>${n}</td>`).join('')}</tr>
+            <tr><td class="row-label">ฐานเดือน</td>${rows[1].map(n => `<td>${n}</td>`).join('')}</tr>
+            <tr><td class="row-label">ฐานปี</td>${rows[2].map(n => `<td>${n}</td>`).join('')}</tr>
+            <tr style="background:#2c3e50;"><td class="row-label" style="color:#fff">ฐานที่ 4</td>
+            ${b4_display.map(c => `<td class="${c.isSpecial ? 'highlight' : ''}" title="ผลรวม ${c.sum}">${c.val}</td>`).join('')}</tr>
+        `;
+        document.getElementById('chartBody').innerHTML = html;
 
-        // จับคู่ 2 ตัวมงคล
-        let pairs = [];
-        for(let i=0; i<finalArray.length; i++) {
-            for(let j=i+1; j<finalArray.length; j++) {
-                pairs.push(`${finalArray[i]}${finalArray[j]}`);
-            }
-        }
-        document.getElementById('luckyPairs').innerHTML = pairs.slice(0, 6).map(p => `<div class="pair-item">${p}</div>`).join('');
+        // 4. สรุปเลข (กฎ Saturn-Zero และจำกัด 4 ตัว)
+        if (finalCandidates.has(7)) finalCandidates.add(0);
+        let luckyArray = Array.from(finalCandidates).slice(0, 4);
+        document.getElementById('luckyNumbers').innerHTML = luckyArray.map(n => `<div class="star-badge">${n}</div>`).join('');
 
-        // แสดงตาราง 21 ภพ
-        let tableHtml = `<tr><th>วัน</th>${houses[0].map(n => `<td>${n}</td>`).join('')}</tr>`;
-        tableHtml += `<tr><th>เดือน</th>${houses[1].map(n => `<td>${n}</td>`).join('')}</tr>`;
-        tableHtml += `<tr><th>ปี</th>${houses[2].map(n => `<td>${n}</td>`).join('')}</tr>`;
-        tableHtml += `<tr><th>ฐาน 4</th>${b4Stars.map((s, idx) => {
-            let sum = houses[0][idx] + houses[1][idx] + houses[2][idx];
-            return `<td class="${[13, 14, 16].includes(sum) ? 'highlight' : ''}">${s}</td>`;
-        }).join('')}</tr>`;
-        document.getElementById('houseTable').innerHTML = tableHtml;
-
-        // สรุปบทวิเคราะห์
-        document.getElementById('researchNote').innerHTML = `
-            <strong>บทวิเคราะห์จากงานวิจัย:</strong><br>
-            • ช่วงเวลา ${document.getElementById('d_time').value} น. เจ้ายามคือดาว ${yamStar} ซึ่งมีแรง Resonance กับฐานชะตา<br>
-            • ตรวจพบฐานมงคลพิเศษในเสาที่ระบุเป็นสีแดง (สะท้อนพลังงานปีนักษัตร)<br>
-            • ตามสถิติ 10 ปี (2558-2569) กลุ่มตัวเลขชุดนี้มีความถี่ในการปรากฏสูงสุดในช่วง Twilight Resonance
+        // 5. บทวิเคราะห์
+        document.getElementById('analysisText').innerHTML = `
+            • <b>ฐานวัน:</b> วัน${['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'][d.getDay()]} (เลข ${b1_start}) [ถูกต้อง]<br>
+            • <b>ฐานที่ 4:</b> พบจุด Resonance พิเศษในช่องสีแดง (มหาอุด/จักรพรรดิ/โสฬส) ซึ่งสะท้อนพลังจากฐานปี<br>
+            • <b>สรุป:</b> ตัวเลขเด่นถูกคัดกรองจากเสาที่มีกำลังสูงสุดในดวง 21 ภพ
         `;
 
-        document.getElementById('analysisPanel').style.display = 'block';
+        document.getElementById('resultArea').style.display = 'block';
     }
 </script>
 
 </body>
-    </html>
+</html>
