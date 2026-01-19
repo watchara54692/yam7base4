@@ -136,8 +136,9 @@
         const data = baseInterpretations[baseVal] || { name: "ฐานทั่วไป", good: "พิจารณาตามดาวประธาน", bad: "พิจารณาตามภพสถิต" };
         
         document.getElementById('detailsTitle').innerHTML = `วิเคราะห์เสาที่ ${col+1}: สรุปผลที่ฐาน ${baseVal}`;
+        // แก้ไขจาก $ightarrow$ เป็น &rarr; เพื่อแสดงลูกศรที่ถูกต้อง
         document.getElementById('detailsContent').innerHTML = `
-            <div class="pillar-box">เส้นทางเสา: ${p1}(${v1}) $\rightarrow$ ${p2}(${v2}) $\rightarrow$ ${p3}(${v3})</div>
+            <div class="pillar-box">เส้นทางเสา: ${p1}(${v1}) &rarr; ${p2}(${v2}) &rarr; ${p3}(${v3})</div>
             <strong>บทสรุปเสานี้:</strong> เรื่องราวของ <strong>${p1}, ${p2} และ ${p3}</strong> จะถูกขับเคลื่อนด้วยพลังของ <strong>${data.name}</strong><br>
             <span class="good-tag">จุดดี:</span> ${data.good}<br>
             <span class="bad-tag">จุดเสีย:</span> ${data.bad}<br>
