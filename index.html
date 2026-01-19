@@ -3,28 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7-Digit Master: Star Journey Edition</title>
+    <title>7-Digit Master Tool: Journey & Thaksa System</title>
     <style>
-        :root { --primary: #1a2a3a; --gold: #c5a02e; --bg: #f4f7f6; --kalakini: #ffcdd2; --good-base: #fff9c4; --personal: #e3f2fd; }
+        :root { 
+            --primary: #1a2a3a; --gold: #c5a02e; --bg: #f4f7f6; 
+            --sri: #e8f5e9; --kalakini: #ffebee; --personal: #e3f2fd;
+        }
         body { font-family: 'Tahoma', sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .container { background: white; border: 1px solid #ddd; border-radius: 12px; max-width: 650px; width: 100%; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .container { background: white; border: 1px solid #ddd; border-radius: 12px; max-width: 680px; width: 100%; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
         input, button { padding: 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 15px; }
         button { cursor: pointer; background: var(--primary); color: white; border: none; font-weight: bold; }
         .btn-now { background: var(--gold); }
+
+        .thaksa-bar { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; justify-content: center; }
+        .thaksa-item { font-size: 11px; padding: 4px 8px; border-radius: 20px; border: 1px solid #ddd; background: #fff; }
+        .tag-sri { background: #4caf50; color: white; border: none; }
+        .tag-kala { background: #d32f2f; color: white; border: none; }
+
         .result-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 15px; }
-        td { border: 1px solid #333; text-align: center; vertical-align: middle; padding: 8px 0; height: 65px; cursor: pointer; }
-        .house-label { font-size: 10px; color: #555; display: block; margin-bottom: 2px; }
+        td { border: 1px solid #333; text-align: center; vertical-align: middle; padding: 8px 0; height: 65px; cursor: pointer; position: relative; }
+        .house-label { font-size: 9px; color: #555; display: block; margin-bottom: 2px; }
         .digit-value { font-size: 24px; font-weight: bold; display: block; }
-        .is-kalakini { background: var(--kalakini) !important; color: #b71c1c; }
-        .is-good-base { background: var(--good-base); border: 2px solid var(--gold); }
+        .thaksa-indicator { position: absolute; top: 2px; right: 2px; font-size: 9px; font-weight: bold; }
+
+        .is-sri { background: var(--sri) !important; }
+        .is-kala { background: var(--kalakini) !important; color: #d32f2f; }
         .is-personal { border: 2px dashed #2196f3; background: var(--personal); }
+        .is-good-base { background: #fff9c4; border: 2px solid var(--gold); }
+        
         .row-base { border-top: 2px solid #333; background: #fafafa; }
         .base-label { font-size: 10px; font-weight: bold; color: #b71c1c; }
         .base-value { font-size: 24px; font-weight: bold; color: #b71c1c; }
-        .details-panel { padding: 15px; background: #fff; border: 2px solid var(--primary); border-radius: 8px; font-size: 14px; min-height: 200px; line-height: 1.6; }
+
+        .details-panel { padding: 15px; background: #fff; border: 2px solid var(--primary); border-radius: 8px; font-size: 14px; min-height: 280px; line-height: 1.6; }
         .details-title { font-weight: bold; color: var(--primary); border-bottom: 2px solid var(--gold); margin-bottom: 10px; padding-bottom: 5px; font-size: 16px; }
-        .journey-box { background: #fffde7; padding: 10px; border-radius: 6px; border: 1px solid #ffe082; margin-top: 10px; color: #5d4037; }
+        .journey-box { background: #fffde7; padding: 12px; border-radius: 8px; border: 1px solid #ffe082; margin-top: 10px; color: #4e342e; }
         .good-tag { color: #2e7d32; font-weight: bold; background: #e8f5e9; padding: 2px 5px; border-radius: 4px; }
         .bad-tag { color: #d32f2f; font-weight: bold; background: #ffebee; padding: 2px 5px; border-radius: 4px; }
     </style>
@@ -36,12 +50,16 @@
         <input type="date" id="inputDate">
         <input type="time" id="inputTime">
         <button class="btn-now" onclick="setNow()">เวลาปัจจุบัน</button>
-        <button onclick="calculateYam()">ตั้งดวงยาม</button>
+        <button onclick="calculateYam()">วิเคราะห์ดวงยามแบบสมบูรณ์</button>
     </div>
+
+    <div id="thaksaBar" class="thaksa-bar"></div>
+
     <table class="result-table"><tbody id="tableBody"></tbody></table>
+
     <div id="detailsBox" class="details-panel">
-        <div id="detailsTitle" class="details-title">วิเคราะห์ดวงยาม</div>
-        <div id="detailsContent">คลิกที่ช่องภพเพื่อประมวลเส้นทางเดินของดาว (Journey)</div>
+        <div id="detailsTitle" class="details-title">ระบบพยากรณ์ประมวลผล (Journey Logic)</div>
+        <div id="detailsContent">คลิกที่ "เลขดาว" เพื่อร้อยเรียงเส้นทางภพ หรือคลิกที่ "เลขฐาน" เพื่อดูบทสรุปเสาพยากรณ์</div>
     </div>
 </div>
 
@@ -52,26 +70,33 @@
         ["มรณะ", "สุภะ", "กัมมะ", "ลาภะ", "พยายะ", "ทาสา", "ทาสี"]
     ];
 
-    const planetInfo = {
-        1: { name: "อาทิตย์", action: "การสร้างชื่อเสียงและอำนาจ" },
-        2: { name: "จันทร์", action: "ความเมตตา ทรัพย์สิน และการบริการ" },
-        3: { name: "อังคาร", action: "ความขยัน การฝ่าฟัน และการต่อสู้" },
-        4: { name: "พุธ", action: "การสื่อสาร ไหวพริบ และสังคม" },
-        5: { name: "พฤหัส", action: "สติปัญญา วิชาการ และผู้ใหญ่" },
-        6: { name: "ศุกร์", action: "ความสุข ทรัพย์สิน และความบันเทิง" },
-        7: { name: "เสาร์", action: "ความอดทน การรอคอย และของเก่า" }
+    const houseContexts = {
+        "อัตตะ": "ตัวตน ความคิดพื้นฐาน", "หินะ": "จุดอ่อน อุปสรรค ความเสื่อม", "ธนัง": "เงินติดตัว ทรัพย์สิน", "ปิตา": "หัวหน้าหรือผู้ใหญ่ชาย", "มาตา": "แม่หรือผู้ใหญ่หญิง", "โภคา": "อสังหาฯ/ทรัพย์ใหญ่", "มัชฌิมา": "ความพอดี/ทางสายกลาง",
+        "ตนุ": "ภาพลักษณ์/การแสดงออก", "กดุมภะ": "รายได้/การเงิน", "สหัชชะ": "สังคม/การติดต่อ", "พันธุ": "ครอบครัว/รากฐาน", "ปุตตะ": "บริวาร/สิ่งเริ่มต้นใหม่", "อริ": "อุปสรรค/คู่แข่ง", "ปัตนิ": "คู่ครอง/หุ้นส่วน",
+        "มรณะ": "ความสูญเสีย/ต่างแดน", "สุภะ": "ความสำเร็จ/ชื่อเสียง", "กัมมะ": "งาน/หน้าที่", "ลาภะ": "โชคลาภ", "พยายะ": "ความลับ/เสื่อมถอย", "ทาสา": "งานเหนื่อยเพื่อผู้อื่น", "ทาสี": "งานส่วนตัว/บริวารหญิง"
+    };
+
+    const planetMeanings = {
+        1: { n: "อาทิตย์", action: "อำนาจและเกียรติยศ", g: "ผู้นำ มีเกียรติ มั่นใจสูง", b: "ใจร้อน อวดดี มีทิฐิ" },
+        2: { n: "จันทร์", action: "ความเมตตาและทรัพย์สิน", g: "เสน่ห์ดี มีโชคจากผู้หญิง", b: "ใจอ่อนเสียรู้ หวั่นไหวง่าย" },
+        3: { n: "อังคาร", action: "ความขยันและการปะทะ", g: "ขยัน รวดเร็ว ชนะอุปสรรค", b: "อุบัติเหตุ โทสะ ปะทะรุนแรง" },
+        4: { n: "พุธ", action: "เจรจาและไหวพริบ", g: "สื่อสารดี วาทศิลป์เด่น", b: "ถูกนินทา เอกสารสัญญาผิด" },
+        5: { n: "พฤหัส", action: "ปัญญาและผู้ใหญ่", g: "ผู้ใหญ่เมตตา สำเร็จวิชาการ", b: "ดื้อรั้น ยึดติดตำราจนเกินจริง" },
+        6: { n: "ศุกร์", action: "ความสุขและลาภผล", g: "เงินคล่อง ลาภลอย รักสมหวัง", b: "ฟุ่มเฟือย หลงมัวเมาในกิเลส" },
+        7: { n: "เสาร์", action: "อดทนและภาระ", g: "วางแผนดี มั่นคงระยะยาว", b: "เครียดจัด ภาระหนัก อมทุกข์" }
     };
 
     const baseInterpretations = {
-        14: "จักรพรรดิ (ความสำเร็จยิ่งใหญ่ มั่นคง)", 15: "กำลังจันทร์ (ทรัพย์คล่องตัว เมตตาดี)", 
-        16: "โสฬส (มงคลรอบด้าน คุ้มภัย)", 19: "กำลังพฤหัส (ผู้ใหญ่หนุน ปัญญาดี)",
-        9: "พระเกตุ (ลางสังหรณ์ โชคกะทันหัน)", 13: "มหาอุจ (ความแรง ชัยชนะเด็ดขาด)",
-        10: "มฤตยู (ความเปลี่ยนแปลง พลิกผัน)", 7: "เสาร์เล็ก (ความเหนื่อยยาก)",
-        21: "กำลังศุกร์ (มหาลาภ ความสำราญ)"
+        14: "จักรพรรดิ (ความสำเร็จยิ่งใหญ่)", 15: "กำลังจันทร์ (ทรัพย์คล่อง เมตตาดี)", 16: "โสฬส (มงคลรอบด้าน)", 19: "กำลังพฤหัส (ปัญญาเลิศ)",
+        9: "พระเกตุ (โชคกะทันหัน)", 13: "มหาอุจ (ชัยชนะเด็ดขาด)", 10: "มฤตยู (พลิกผัน)", 21: "กำลังศุกร์ (มหาลาภ)"
     };
+
+    const thaksaNames = ["บริวาร", "อายุ", "เดช", "ศรี", "มูละ", "อุตสาหะ", "มนตรี", "กาลกิณี"];
+    const thaksaSeq = [1, 2, 3, 4, 7, 5, 8, 6];
 
     let currentGrid = [];
     let currentBases = [];
+    let dailyThaksa = {};
 
     function setNow() {
         const now = new Date();
@@ -85,84 +110,110 @@
         const tIn = document.getElementById('inputTime').value;
         if(!dIn || !tIn) return;
         let dt = new Date(dIn + 'T' + tIn);
-        let d = dt.getDay() === 0 ? 1 : dt.getDay() + 1;
-        let h = dt.getHours();
-        let bioD = (h < 6) ? (d === 1 ? 7 : d - 1) : d;
-        let totalM = (h * 60) + dt.getMinutes();
+        let dayOfWeek = dt.getDay() === 0 ? 1 : dt.getDay() + 1;
+        let hours = dt.getHours();
+        let bioDay = (hours < 6) ? (dayOfWeek === 1 ? 7 : dayOfWeek - 1) : dayOfWeek;
+        
+        updateThaksa(bioDay);
+        let totalM = (hours * 60) + dt.getMinutes();
         let isN = (totalM >= 1080 || totalM < 360);
         let refT = isN ? (totalM < 360 ? totalM + 1440 : totalM) - 1080 : totalM - 360;
         let yIdx = Math.floor(refT / 90) + 1;
-        let fY = isN ? ((bioD + 4 > 7) ? bioD + 4 - 7 : bioD + 4) : bioD;
+        let fY = isN ? ((bioDay + 4 > 7) ? bioDay + 4 - 7 : bioDay + 4) : bioDay;
         const seq = [1, 6, 4, 2, 7, 5, 3];
         let mY = fY;
         for(let i=1; i<yIdx; i++) { mY = seq[(seq.indexOf(mY) + 1) % 7]; }
         let lY = (mY + Math.floor((refT % 90) / 12.85)) % 7 || 7;
-        renderTable(bioD, mY, lY);
+        renderTable(bioDay, mY, lY);
+    }
+
+    function updateThaksa(day) {
+        dailyThaksa = {};
+        let start = thaksaSeq.indexOf(day === 8 ? 8 : day);
+        const bar = document.getElementById('thaksaBar'); bar.innerHTML = '';
+        for(let i=0; i<8; i++) {
+            let star = thaksaSeq[(start + i) % 8];
+            dailyThaksa[star] = thaksaNames[i];
+            let cls = thaksaNames[i] === 'ศรี' ? 'tag-sri' : (thaksaNames[i] === 'กาลกิณี' ? 'tag-kala' : '');
+            bar.innerHTML += `<div class="thaksa-item ${cls}">${star}:${thaksaNames[i]}</div>`;
+        }
     }
 
     function renderTable(d, y, ly) {
         const tb = document.getElementById('tableBody'); tb.innerHTML = '';
-        const kala = { 1:6, 2:1, 3:2, 4:3, 5:7, 6:5, 7:4 }[d];
         currentGrid = [[], [], []]; currentBases = [];
         for(let i=0; i<7; i++) {
             currentGrid[0].push((d + i) % 7 || 7);
             currentGrid[1].push((y + i) % 7 || 7);
-            currentGrid[2].push((ly + ly + i) % 7 ? (ly + i) % 7 || 7 : 7); // Fix logic
-            currentGrid[2][i] = (ly + i) > 7 ? (ly + i) % 7 || 7 : (ly + i);
+            currentGrid[2].push((ly + i) > 7 ? (ly + i) % 7 || 7 : (ly + i));
             currentBases.push(currentGrid[0][i] + currentGrid[1][i] + currentGrid[2][i]);
         }
         for(let r=0; r<3; r++) {
             let tr = document.createElement('tr');
             for(let c=0; c<7; c++) {
                 let v = currentGrid[r][c]; let h = houseNames[r][c];
-                let cls = v === kala ? 'is-kalakini' : (["หินะ", "อริ", "มรณะ", "พยายะ"].includes(h) ? 'is-bad-house' : '');
+                let tLabel = dailyThaksa[v] || "";
+                let cls = tLabel === 'ศรี' ? 'is-sri' : (tLabel === 'กาลกิณี' ? 'is-kala' : '');
                 if([7,4,3].includes(v)) cls += ' is-personal';
-                tr.innerHTML += `<td class="${cls}" onclick="showStarJourney(${v})"><span class="house-label">${h}</span><span class="digit-value">${v}</span></td>`;
+                tr.innerHTML += `<td class="${cls}" onclick="showJourney(${v})">
+                    <span class="house-label">${h}</span>
+                    <span class="digit-value">${v}</span>
+                    <span class="thaksa-indicator">${tLabel.substring(0,2)}</span>
+                </td>`;
             }
             tb.appendChild(tr);
         }
         let trB = document.createElement('tr'); trB.className = 'row-base';
         for(let b=0; b<7; b++) {
-            let val = currentBases[b]; let cls = [14, 15, 16, 19].includes(val) ? 'is-good-base' : '';
-            trB.innerHTML += `<td class="${cls}" onclick="showBaseOnly(${val})"><span class="base-label">ฐาน</span><span class="base-value">${val}</span></td>`;
+            let val = currentBases[b];
+            trB.innerHTML += `<td class="${[14,15,16,19].includes(val)?'is-good-base':''}" onclick="showBaseSummary(${b}, ${val})">
+                <span class="base-label">ฐาน</span>
+                <span class="base-value">${val}</span>
+            </td>`;
         }
         tb.appendChild(trB);
     }
 
-    function showStarJourney(starValue) {
-        // ตามหาดาวดวงนี้ใน 3 แถว
-        let path = [];
-        let finalBase = 0;
-        
+    function showJourney(star) {
+        let path = []; let pathCtx = []; let lastBase = 0;
         for(let r=0; r<3; r++) {
             for(let c=0; c<7; c++) {
-                if(currentGrid[r][c] === starValue) {
-                    path.push(houseNames[r][c]);
-                    if(r === 2) finalBase = currentBases[c]; // ฐานที่อยู่ใต้ดาวในแถว 3
+                if(currentGrid[r][c] === star) {
+                    let h = houseNames[r][c];
+                    path.push(h); pathCtx.push(`${h} (${houseContexts[h]})`);
+                    if(r === 2) lastBase = currentBases[c];
                 }
             }
         }
+        const p = planetMeanings[star];
+        const bM = baseInterpretations[lastBase] || "กำลังสะสมพลังงานดาว";
+        const tLabel = dailyThaksa[star];
 
-        const info = planetInfo[starValue];
-        const baseMeaning = baseInterpretations[finalBase] || "กำลังดาวสะสม";
-
-        document.getElementById('detailsTitle').innerHTML = `ประมวลเส้นทางดาว ${starValue} (${info.name})`;
+        document.getElementById('detailsTitle').innerHTML = `ร้อยเรียงเส้นทางดาว ${star} (${p.n}) + ทักษา: ${tLabel}`;
         document.getElementById('detailsContent').innerHTML = `
-            <strong>ดาวแห่ง:</strong> ${info.action}<br>
-            <strong>ร้อยเรียงภพ:</strong> <span class="good-tag">${path.join(' → ')}</span><br>
-            <strong>บทสรุปที่ฐาน:</strong> เลข ${finalBase} (${baseMeaning})
+            <strong>ดาวแห่ง:</strong> ${p.action}<br>
+            <strong>คุณภาพทักษา:</strong> ${tLabel}<br>
+            <strong>บทสรุปฐานที่ 4:</strong> ${lastBase} (${bM})
             <div class="journey-box">
-                <strong>คำทำนายเชิงลึก:</strong><br>
-                เรื่องราวเริ่มต้นจาก <strong>${path[0]}</strong> เชื่อมโยงไปถึง <strong>${path[1]}</strong> 
-                และจะไปปรากฏผลลัพธ์ที่ <strong>${path[2]}</strong> โดยมีพื้นฐานความสำเร็จคือ <strong>${baseMeaning}</strong> 
-                พิจารณาว่าหากเป็นดาวมงคลสถิตในภพที่ดี จะส่งผลให้การ ${info.action} สำเร็จอย่างมั่นคงครับ
+                <strong>วิเคราะห์ร้อยเรียง:</strong> เริ่มต้นจาก <strong>${pathCtx[0]}</strong> เชื่อมโยงไป <strong>${pathCtx[1]}</strong> 
+                ปรากฏผลที่ <strong>${pathCtx[2]}</strong> โดยมีพื้นฐานจาก <strong>${bM}</strong> ครับ
             </div>
+            <p><span class="good-tag">จุดดี:</span> ${p.g}</p>
+            <p><span class="bad-tag">จุดเสีย:</span> ${p.b}</p>
         `;
     }
 
-    function showBaseOnly(val) {
-        document.getElementById('detailsTitle').innerHTML = `วิเคราะห์ฐานที่ 4 (เลข ${val})`;
-        document.getElementById('detailsContent').innerHTML = `ฐานเลข ${val} คือ ${baseInterpretations[val] || "กำลังสะสมพลังงานดาว"}`;
+    function showBaseSummary(col, val) {
+        const p1 = houseNames[0][col], p2 = houseNames[1][col], p3 = houseNames[2][col];
+        const v1 = currentGrid[0][col], v2 = currentGrid[1][col], v3 = currentGrid[2][col];
+        const bM = baseInterpretations[val] || "กำลังดาวสะสม";
+        document.getElementById('detailsTitle').innerHTML = `วิเคราะห์เสาพยากรณ์บรรจบที่ฐาน ${val}`;
+        document.getElementById('detailsContent').innerHTML = `
+            <div class="journey-box">เส้นทางเสา: ${p1}(${v1}) → ${p2}(${v2}) → ${p3}(${v3})</div>
+            <strong>บทสรุปฐาน ${val}:</strong> ${bM}<br>
+            พื้นฐานจาก <strong>${p1}</strong> ส่งผ่าน <strong>${p2}</strong> มาหยุดที่ <strong>${p3}</strong> 
+            คุณภาพชีวิตในช่วงนี้จึงขึ้นอยู่กับกำลังของฐาน ${val} เป็นหลักครับ
+        `;
     }
 
     window.onload = setNow;
