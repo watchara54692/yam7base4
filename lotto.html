@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twilight Resonance - ระบบพยากรณ์ยามอัฐกาล</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --gold: #f1c40f;
+            --bg-color: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 { font-size: 1.5rem; margin-bottom: 10px; color: var(--primary-color); }
+        p.subtitle { font-size: 0.9rem; color: #666; margin-bottom: 25px; }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        
+        input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover { background-color: #34495e; }
+
+        .result-section {
+            margin-top: 30px;
+            display: none;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+
+        .number-badge {
+            display: inline-block;
+            background: var(--gold);
+            color: #000;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .pair-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .pair-item {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid var(--accent-color);
+            font-weight: bold;
+        }
+
+        .stat-info {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-top: 15px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Twilight Resonance</h1>
+    <p class="subtitle">ระบบคำนวณเลขเด่นตามทฤษฎียามอัฐกาล (2558-2569)</p>
+
+    <div class="input-group">
+        <label>เลือกวันที่หวยออก</label>
+        <input type="date" id="lotteryDate">
+    </div>
+
+    <button onclick="calculateLottery()">คำนวณเลขมงคล</button>
+
+    <div id="result" class="result-section">
+        <h3>เลขเด่นประจำวัน (ยามซอย 16.45-17.00)</h3>
+        <div id="mainStars"></div>
+        
+        <h4>จับคู่ 2 ตัว</h4>
+        <div id="pairs2" class="pair-grid"></div>
+
+        <h4>ผสมเลข 3 ตัว</h4>
+        <div id="pairs3" class="pair-grid"></div>
+
+        <div class="stat-info" id="ruleInfo"></div>
+    </div>
+</div>
+
+<script>
+    // สถิติและความสัมพันธ์ของดาวจากงานวิจัย
+    const theoryData = {
+        0: { name: "Sunday", base: [1, 5, 6], extra: [0], rule: "กฎ Saturn-Zero: ดาว 7 กลายเป็น 0" },
+        1: { name: "Monday", base: [2, 4, 6], extra: [8, 9], rule: "กฎ Shadow Interference: ระวังราหู(8) และเกตุ(9)" },
+        2: { name: "Tuesday", base: [3, 5, 1], extra: [8, 9], rule: "กฎ Shadow Interference: อิทธิพลดาวแทรกซ้อน" },
+        3: { name: "Wednesday", base: [4, 6, 1, 3], extra: [], rule: "กฎ Adjacent Star: คู่มิตร 4-6 และ 6-1" },
+        4: { name: "Thursday", base: [5, 1, 2, 4], extra: [], rule: "ยามครู: พลังดาวศุภเคราะห์เด่น" },
+        5: { name: "Friday", base: [6, 1, 3, 4], extra: [], rule: "กฎทองคำ: คู่ 6-1 คือสถิติสูงสุด (High Resonance)" },
+        6: { name: "Saturday", base: [7, 4, 6], extra: [0], rule: "กฎ Adjacent Star: คู่ 4-6 และการแปลง 7 เป็น 0" }
+    };
+
+    function calculateLottery() {
+        const dateInput = document.getElementById('lotteryDate').value;
+        if (!dateInput) {
+            alert("กรุณาเลือกวันที่");
+            return;
+        }
+
+        const date = new Date(dateInput);
+        const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday...
+        const data = theoryData[dayOfWeek];
+
+        // 1. รวมเลขเด่น (ไม่เกิน 4 ตัว)
+        let stars = [...data.base, ...data.extra].slice(0, 4);
+        
+        // แสดงผลเลขเด่น
+        const mainStarsDiv = document.getElementById('mainStars');
+        mainStarsDiv.innerHTML = stars.map(s => `<div class="number-badge">${s}</div>`).join('');
+
+        // 2. จับคู่ 2 ตัว
+        const pairs2Div = document.getElementById('pairs2');
+        let pairs2 = [];
+        for (let i = 0; i < stars.length; i++) {
+            for (let j = i + 1; j < stars.length; j++) {
+                pairs2.push(`${stars[i]}${stars[j]}`);
+            }
+        }
+        pairs2Div.innerHTML = pairs2.map(p => `<div class="pair-item">${p}</div>`).join('');
+
+        // 3. ผสม 3 ตัว (สุ่ม/จัดกลุ่มตามลำดับความสำคัญ)
+        const pairs3Div = document.getElementById('pairs3');
+        let pairs3 = [];
+        if (stars.length >= 3) {
+            pairs3.push(`${stars[0]}${stars[1]}${stars[2]}`);
+            if (stars.length === 4) {
+                pairs3.push(`${stars[1]}${stars[2]}${stars[3]}`);
+                pairs3.push(`${stars[0]}${stars[2]}${stars[3]}`);
+            }
+        }
+        pairs3Div.innerHTML = pairs3.map(p => `<div class="pair-item">${p}</div>`).join('');
+
+        // 4. แสดงกฎ
+        document.getElementById('ruleInfo').innerText = `วิเคราะห์ตาม: ${data.rule}`;
+
+        // โชว์ผลลัพธ์
+        document.getElementById('result').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
