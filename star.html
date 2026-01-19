@@ -160,4 +160,44 @@
             
             // ฐานเลขมงคล/กำลัง (ให้คะแนนดาว 1-7)
             if ([16, 14, 13, 19, 21].includes(b4)) {
-                let targetStar = chart[0][i]; // ดาวเจ้า
+                let targetStar = chart[0][i]; // ดาวเจ้าของแถว
+                scores[targetStar] += 15;
+            }
+
+            // เชื่อมโยงเลขพิเศษ 8, 9, 0 ตามกฎที่คุณระบุ
+            if (b4 === 12) scores[8] += 20; // 12 คือกำลังของ 8
+            if (b4 === 9)  scores[9] += 18; // 9 คือพระเกตุ
+            if (b4 === 10 || b4 === 20) scores[0] += 18; // 10, 20 คือมฤตยู/กำลังเสาร์
+        }
+
+        // คะแนนทักษาและยาม
+        for (let star in scores) {
+            let s = parseInt(star);
+            if (thaksa[s] === "ศรี") scores[s] += 12;
+            if (thaksa[s] === "กาลกิณี") scores[s] -= 15;
+            if (s === yarn) scores[s] += 10; 
+        }
+
+        let sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]).slice(0, 5);
+        let maxScore = Math.max(...Object.values(scores), 1);
+
+        let rankHtml = '';
+        sorted.forEach((item, idx) => {
+            let width = Math.max((item[1] / maxScore) * 100, 5);
+            rankHtml += `
+                <div class="rank-item">
+                    <div class="rank-circle">${idx + 1}</div>
+                    <div style="font-weight:bold; width:50px;">ดาว ${item[0]}</div>
+                    <div class="energy-track"><div class="energy-fill" style="width: ${width}%"></div></div>
+                    <div class="score-text">${item[1].toFixed(1)}</div>
+                </div>`;
+        });
+        document.getElementById('rankOutput').innerHTML = rankHtml;
+    }
+
+    document.getElementById('inputDate').valueAsDate = new Date();
+    calculateAll();
+</script>
+
+</body>
+    </html>
