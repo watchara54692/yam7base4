@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7-Digit Astrology Tool (V2)</title>
+    <title>7-Digit Master Tool</title>
     <style>
-        :root { --primary: #1a2a3a; --gold: #c5a02e; --bg: #fdfdfd; }
-        body { font-family: 'Tahoma', sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; justify-content: center; }
+        :root { --primary: #1a2a3a; --gold: #c5a02e; --bg: #fdfdfd; --bad: #ffebee; --good: #fff9c4; --kalakini: #ffcdd2; --chakraphat: #ffd700; }
+        body { font-family: 'Tahoma', sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
         .container { background: white; border: 1px solid #ddd; border-radius: 8px; max-width: 650px; width: 100%; padding: 12px; box-sizing: border-box; }
         
         .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
@@ -15,18 +15,27 @@
         .btn-now { background: var(--gold); }
 
         .result-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        td { border: 1px solid #333; text-align: center; vertical-align: middle; padding: 6px 0; height: 60px; }
+        td { border: 1px solid #333; text-align: center; vertical-align: middle; padding: 6px 0; height: 60px; cursor: pointer; transition: 0.2s; position: relative; }
+        td:hover { background: #f0f0f0; }
         
-        /* สไตล์ชื่อภพในช่อง */
-        .house-label { font-size: 10px; color: #666; margin-bottom: 2px; display: block; }
-        .digit-value { font-size: 22px; font-weight: bold; color: #000; display: block; }
+        .house-label { font-size: 9px; color: #666; display: block; }
+        .digit-value { font-size: 22px; font-weight: bold; display: block; }
         
-        /* สไตล์แถวฐาน */
-        .row-base { background: #fff9c4; border-top: 2px solid #333; }
-        .base-label { font-size: 10px; color: #b71c1c; font-weight: bold; }
+        /* Highlight Styles */
+        .is-bad-house { background: var(--bad); }
+        .is-kalakini { background: var(--kalakini) !important; color: #b71c1c; }
+        .is-good-base { background: var(--good); border: 2px solid var(--gold); }
+        .is-personal-id { border: 2px dashed var(--primary); } /* สำหรับรหัส 7-4-3 */
+
+        .row-base { border-top: 2px solid #333; }
+        .base-label { font-size: 9px; font-weight: bold; color: #b71c1c; }
         .base-value { font-size: 22px; font-weight: bold; color: #b71c1c; }
         
-        .info-panel { margin-top: 15px; font-size: 14px; padding: 10px; background: #f0f4f8; border-radius: 5px; text-align: center; border: 1px solid #d1d9e6; }
+        /* Details Box */
+        .details-panel { margin-top: 15px; padding: 12px; background: #fff; border: 2px solid var(--primary); border-radius: 8px; font-size: 14px; min-height: 80px; }
+        .details-title { font-weight: bold; color: var(--primary); border-bottom: 1px solid #ddd; margin-bottom: 8px; }
+        .highlight-text { color: #d32f2f; font-weight: bold; }
+        .success-text { color: #2e7d32; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -40,22 +49,38 @@
     </div>
 
     <table class="result-table">
-        <tbody id="tableBody">
-            </tbody>
+        <tbody id="tableBody"></tbody>
     </table>
 
-    <div id="summaryInfo" class="info-panel" style="display:none;"></div>
+    <div id="detailsBox" class="details-panel">
+        <div class="details-title">คำวิเคราะห์จุดเด่น/จุดระวัง</div>
+        <div id="detailsContent">คลิกที่ช่องตัวเลขหรือฐานเพื่อดูความหมายเชิงลึก</div>
+    </div>
 </div>
 
 <script>
-    // นิยามภพทั้ง 21 ตามลำดับ
     const houseList = [
         ["อัตตะ", "หินะ", "ธนัง", "ปิตา", "มาตา", "โภคา", "มัชฌิมา"],
         ["ตนุ", "กดุมภะ", "สหัชชะ", "พันธุ", "ปุตตะ", "อริ", "ปัตนิ"],
         ["มรณะ", "สุภะ", "กัมมะ", "ลาภะ", "พยายะ", "ทาสา", "ทาสี"]
     ];
     
-    const yamSequence = [1, 6, 4, 2, 7, 5, 3];
+    // ข้อมูลกาลกิณี (ทักษา) 1=Sun...7=Sat
+    const kalakiniMap = { 1: 6, 2: 1, 3: 2, 4: 3, 5: 7, 6: 5, 7: 4 };
+    const goodBases = [14, 15, 16, 19];
+    const personalID = [7, 4, 3]; // รหัสประจำตัวของคุณ
+    const badHouses = ["หินะ", "อริ", "มรณะ", "พยายะ"];
+
+    const baseMeanings = {
+        14: "ฐานจักรพรรดิ: ความสำเร็จที่ยิ่งใหญ่ มั่นคง มีอำนาจตัดสินใจเด็ดขาด",
+        15: "ฐานกำลังพระอาทิตย์: โชคลาภกะทันหัน มีชื่อเสียง แสงสว่างในการแก้ปัญหา",
+        16: "ฐานโสฬสมงคล: ความสำเร็จสมบูรณ์แบบ มีการคุ้มครองจากสิ่งศักดิ์สิทธิ์",
+        19: "ฐานกำลังพระพฤหัสบดี: ผู้ใหญ่เมตตา ประสบความสำเร็จด้านวิชาการ/ความรู้",
+        7: "ฐานกำลังพระเสาร์: ความเหนื่อยยาก การรอคอยที่ยาวนาน หรือความเครียดสะสม",
+        13: "ฐานมหาอุจ/กำลังอังคาร: ความรุนแรง การปะทะ หรือการเปลี่ยนแปลงกะทันหัน",
+        10: "ฐานกำลังพระเสาร์ (0): การพลิกผัน ความลับ หรือเรื่องที่คาดไม่ถึง",
+        9: "ฐานพระเกตุ: โชคลาภจากสิ่งศักดิ์สิทธิ์ ลางสังหรณ์แม่นยำ"
+    };
 
     function setNow() {
         const now = new Date();
@@ -75,77 +100,80 @@
         let minutes = dt.getMinutes();
         let totalMin = (hours * 60) + minutes;
 
-        // ปรับวันทางโหราศาสตร์
         let bioDay = (hours < 6) ? (dayOfWeek === 1 ? 7 : dayOfWeek - 1) : dayOfWeek;
-        
-        // คำนวณยาม
         let isNight = (totalMin >= 1080 || totalMin < 360);
         let refTime = isNight ? (totalMin < 360 ? totalMin + 1440 : totalMin) - 1080 : totalMin - 360;
         let yamIdx = Math.floor(refTime / 90) + 1;
         
         let firstY = isNight ? ((bioDay + 4 > 7) ? bioDay + 4 - 7 : bioDay + 4) : bioDay;
+        const yamSequence = [1, 6, 4, 2, 7, 5, 3];
         let mYam = firstY;
         for(let i=1; i < yamIdx; i++) {
             let next = yamSequence.indexOf(mYam) + 1;
             mYam = yamSequence[next > 6 ? 0 : next];
         }
 
-        let minInYam = refTime % 90;
-        let lYamIdx = Math.floor(minInYam / 12.85) + 1;
-        let lYam = (mYam + lYamIdx - 1) > 7 ? (mYam + lYamIdx - 1) % 7 || 7 : (mYam + lYamIdx - 1);
-
-        renderTable(bioDay, mYam, lYam, isNight, yamIdx, lYamIdx);
+        let lYam = (mYam + Math.floor((refTime % 90) / 12.85)) % 7 || 7;
+        renderTable(bioDay, mYam, lYam);
     }
 
-    function renderTable(d, y, ly, night, yIdx, lyIdx) {
+    function renderTable(bioDay, y, ly) {
         const tableBody = document.getElementById('tableBody');
-        tableBody.innerHTML = ''; // ล้างตารางเดิม
-
+        tableBody.innerHTML = '';
+        const kalakini = kalakiniMap[bioDay];
         const results = [[], [], []];
         const baseRow = [];
 
-        // คำนวณเลขดาวทั้ง 3 แถว
         for(let i=0; i<7; i++) {
-            results[0].push((d + i) > 7 ? (d + i) % 7 || 7 : (d + i));
+            results[0].push((bioDay + i) > 7 ? (bioDay + i) % 7 || 7 : (bioDay + i));
             results[1].push((y + i) > 7 ? (y + i) % 7 || 7 : (y + i));
             results[2].push((ly + i) > 7 ? (ly + i) % 7 || 7 : (ly + i));
             baseRow.push(results[0][i] + results[1][i] + results[2][i]);
         }
 
-        // สร้างแถวข้อมูล 1-3
         for(let r=0; r<3; r++) {
             let tr = document.createElement('tr');
             for(let c=0; c<7; c++) {
-                tr.innerHTML += `
-                    <td>
-                        <span class="house-label">${houseList[r][c]}</span>
-                        <span class="digit-value">${results[r][c]}</span>
-                    </td>
-                `;
+                let val = results[r][c];
+                let house = houseList[r][c];
+                let cls = val === kalakini ? 'is-kalakini' : (badHouses.includes(house) ? 'is-bad-house' : '');
+                if(personalID.includes(val)) cls += ' is-personal-id';
+                
+                tr.innerHTML += `<td class="${cls}" onclick="showInfo('${house}', ${val}, ${kalakini})">
+                    <span class="house-label">${house}</span>
+                    <span class="digit-value">${val}</span>
+                </td>`;
             }
             tableBody.appendChild(tr);
         }
 
-        // สร้างแถวฐาน (แถวที่ 4)
         let trBase = document.createElement('tr');
         trBase.className = 'row-base';
         for(let b=0; b<7; b++) {
-            trBase.innerHTML += `
-                <td>
-                    <span class="base-label">ฐาน</span>
-                    <span class="base-value">${baseRow[b]}</span>
-                </td>
-            `;
+            let baseVal = baseRow[b];
+            let cls = goodBases.includes(baseVal) ? 'is-good-base' : '';
+            trBase.innerHTML += `<td class="${cls}" onclick="showBaseInfo(${baseVal})">
+                <span class="base-label">ฐาน</span>
+                <span class="base-value">${baseVal}</span>
+            </td>`;
         }
         tableBody.appendChild(trBase);
+    }
 
-        const info = document.getElementById('summaryInfo');
-        info.style.display = 'block';
-        info.innerHTML = `<strong>ยามที่ ${yIdx} (${night ? 'กลางคืน' : 'กลางวัน'}) | ลูกยามที่ ${lyIdx}</strong><br>รหัส: ${results[0][0]} - ${results[1][0]} - ${results[2][0]} ฐาน ${baseRow[0]}`;
+    function showInfo(house, val, kala) {
+        let txt = `ภพ <strong>${house}</strong>: ดาวเลข <strong>${val}</strong> `;
+        if(val === kala) txt += `<br><span class="highlight-text">ระวัง! เป็นดาวกาลกิณีประจำวัน</span> ทำให้ภพนี้เกิดอุปสรรคหรือความมัวหมอง`;
+        if(badHouses.includes(house)) txt += `<br><span class="highlight-text">จุดระวัง!</span> เป็นภพเสีย (อริ/มรณะ/พยายะ) อาจเกิดปัญหาหรือการสูญเสีย`;
+        if(personalID.includes(val)) txt += `<br><span class="success-text">จุดเน้น!</span> สัมพันธ์กับรหัสตัวตนของคุณ (7-4-3) ให้ผลแรงเป็นพิเศษ`;
+        document.getElementById('detailsContent').innerHTML = txt;
+    }
+
+    function showBaseInfo(base) {
+        let meaning = baseMeanings[base] || "ฐานกำลังดาวทั่วไป พิจารณาความสัมพันธ์กับดาวด้านบน";
+        document.getElementById('detailsContent').innerHTML = `<strong>ฐานที่ 4: เลข ${base}</strong><br>${meaning}`;
     }
 
     window.onload = setNow;
 </script>
-
 </body>
-</html>
+    </html>
