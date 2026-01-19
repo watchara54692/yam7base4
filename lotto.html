@@ -3,116 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twilight Resonance - Final Research Engine</title>
+    <title>Twilight Resonance - Research Core V5</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #d4af37; --bg: #0b0d17; --card: #161b33; --accent: #f24c4c; }
-        body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 20px; }
-        .container { max-width: 480px; margin: auto; background: var(--card); padding: 30px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); }
-        h1 { color: var(--gold); text-align: center; font-size: 1.5rem; text-transform: uppercase; margin-bottom: 5px; }
-        .input-group { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; margin: 20px 0; }
-        input[type="date"] { width: 100%; padding: 12px; border-radius: 8px; border: none; font-size: 1.1rem; text-align: center; }
-        button { width: 100%; padding: 15px; background: var(--gold); color: #000; border: none; border-radius: 50px; font-weight: bold; font-size: 1.2rem; cursor: pointer; margin-top: 15px; transition: 0.3s; }
-        button:hover { background: #fff; transform: scale(1.02); }
-        .result-box { display: none; margin-top: 25px; }
-        .star-display { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
-        .star-circle { background: linear-gradient(135deg, #d4af37, #f4c430); color: #000; width: 60px; height: 60px; line-height: 60px; border-radius: 50%; font-size: 1.8rem; font-weight: bold; text-align: center; box-shadow: 0 0 15px var(--gold); }
-        .num-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 10px; }
-        .num-item { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px; text-align: center; font-size: 1.4rem; font-weight: bold; color: var(--gold); border: 1px solid rgba(212,175,55,0.3); }
-        .summary { font-size: 0.8rem; opacity: 0.7; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; margin-top: 20px; line-height: 1.5; }
-        h4 { margin-bottom: 8px; border-left: 3px solid var(--gold); padding-left: 10px; color: var(--gold); }
+        :root { --gold: #c5a059; --dark: #0f111a; --card: #1a1d2e; --red: #ff4757; }
+        body { font-family: 'Sarabun', sans-serif; background: var(--dark); color: #fff; margin: 0; padding: 15px; }
+        .app { max-width: 480px; margin: auto; background: var(--card); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        h1 { color: var(--gold); text-align: center; font-size: 1.4rem; margin-bottom: 20px; border-bottom: 2px solid var(--gold); padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.85rem; margin-bottom: 5px; color: var(--gold); }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #0f111a; color: #fff; font-size: 1rem; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: var(--gold); color: #000; border: none; border-radius: 10px; font-weight: bold; font-size: 1.2rem; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        button:hover { background: #fff; }
+        .result-area { display: none; margin-top: 25px; }
+        .star-row { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
+        .star-box { background: #000; color: var(--gold); width: 60px; height: 60px; line-height: 60px; border-radius: 12px; font-size: 1.8rem; font-weight: bold; text-align: center; border: 2px solid var(--gold); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .num-card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; text-align: center; font-size: 1.5rem; font-weight: bold; color: var(--red); border: 1px solid rgba(255,255,255,0.1); }
+        .info { font-size: 0.8rem; padding: 10px; background: #000; border-radius: 8px; margin-top: 15px; line-height: 1.5; color: #aaa; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Twilight Resonance</h1>
-    <p style="text-align:center; font-size:0.8rem; opacity:0.6;">ระบบพยากรณ์อ้างอิงงานวิจัย พ.ศ. 2558-2569</p>
-
-    <div class="input-group">
-        <label style="display:block; margin-bottom:10px; text-align:center;">เลือกวันออกรางวัล</label>
-        <input type="date" id="inputDate">
-        <button onclick="runEngine()">วิเคราะห์ผลเจาะลึก</button>
+<div class="app">
+    <h1>ระบบสังเคราะห์ฐานเลขวิจัย</h1>
+    
+    <div class="form-group">
+        <label>1. เลือกวันที่ออกรางวัล (เพื่อหาฐานวัน)</label>
+        <input type="date" id="dateInput">
     </div>
 
-    <div id="results" class="result-section result-box">
-        <h4>เลขเด่นจตุรธาตุ (Core)</h4>
-        <div class="star-display" id="stars"></div>
+    <div class="form-group">
+        <label>2. เดือนไทย (มกราคม=2, กุมภาพันธ์=3 ... ธันวาคม=1)</label>
+        <select id="thaiMonth">
+            <option value="2">มกราคม (เดือน 2)</option>
+            <option value="3">กุมภาพันธ์ (เดือน 3)</option>
+            <option value="4">มีนาคม (เดือน 4)</option>
+            <option value="5">เมษายน (เดือน 5)</option>
+            <option value="6">พฤษภาคม (เดือน 6)</option>
+            <option value="7">มิถุนายน (เดือน 7)</option>
+            <option value="1">กรกฎาคม-ธันวาคม (1)</option>
+        </select>
+    </div>
 
-        <h4>ชุด 2 หลักมงคล</h4>
-        <div class="num-grid" id="pairs2"></div>
+    <div class="form-group">
+        <label>3. เลขปีนักษัตร (2569=7, 2568=6, 2567=5)</label>
+        <input type="number" id="thaiYear" value="7" min="1" max="7">
+    </div>
 
-        <h4>ชุด 3 หลัก Resonance</h4>
-        <div class="num-grid" id="pairs3"></div>
+    <button onclick="calculate()">คำนวณตามกฎ Resonance</button>
 
-        <div class="summary" id="debugInfo"></div>
+    <div id="results" class="result-area">
+        <label style="text-align:center">เลขเด่นจากฐาน Resonance (Core 4)</label>
+        <div class="star-row" id="coreStars"></div>
+
+        <label style="text-align:center">ชุด 2 หลัก (แนะนำ)</label>
+        <div class="grid-2" id="pairs2"></div>
+
+        <label style="text-align:center; margin-top:15px;">ชุด 3 หลัก (Resonance)</label>
+        <div class="grid-2" id="pairs3"></div>
+
+        <div class="info" id="debug"></div>
     </div>
 </div>
 
 <script>
-    function runEngine() {
-        const val = document.getElementById('inputDate').value;
-        if(!val) return;
-        const d = new Date(val);
+    function calculate() {
+        const d = new Date(document.getElementById('dateInput').value);
+        if(isNaN(d.getTime())) return alert("กรุณาเลือกวันที่");
 
-        // 1. คำนวณฐานเลข 7 ตัว (อ้างอิงตามวิจัย)
-        const day = d.getDay() === 0 ? 7 : d.getDay(); // 1=จันทร์, 7=อาทิตย์
-        const monthThai = (d.getMonth() + 2) % 7 || 7; // มกราคม คือ เดือน 2 ตามปฏิทินไทย
-        const yearThai = (d.getFullYear() + 543) % 7 || 7; // ปีมะเมีย = 7
+        // 1. กำหนดค่าฐานเลข 7 ตัว
+        let b1 = d.getDay() === 0 ? 7 : d.getDay(); // ฐานวัน
+        let b2 = parseInt(document.getElementById('thaiMonth').value); // ฐานเดือน
+        let b3 = parseInt(document.getElementById('thaiYear').value); // ฐานปี
         
-        // ฐานที่ 4 (ผลรวม)
-        const base4 = day + monthThai + yearThai;
-        const base4Single = base4 % 10; // เลขท้ายฐานที่ 4
+        // 2. คำนวณฐานรองรับ (ฐานที่ 4)
+        let sum = b1 + b2 + b3;
+        let b4 = sum > 7 ? (sum % 7 || 7) : sum; // การลดรูปตามระบบเลข 7 ตัว
 
-        // 2. คัดเลือกเลข Resonance (คุมไม่ให้เกิน 4 ตัว)
+        // 3. กฎทองคำจากงานวิจัย (Golden Rules)
         let core = new Set();
-        
-        // กฎหลัก: ดึงเลขจากฐานวันและฐานที่ 4
-        core.add(day);
-        core.add(monthThai);
-        core.add(base4Single);
+        core.add(b1);
+        core.add(b2);
+        core.add(b4);
 
-        // กฎ Saturn-Zero (วิจัยหน้า 14): ถ้ามี 7 ให้เพิ่ม 0
-        if (core.has(7) || day === 6 || day === 7) {
+        // กฎ Saturn-Zero (7=0)
+        if (core.has(7)) {
+            core.delete(7);
             core.add(0);
         }
 
-        // กฎ Shadow (วิจัยหน้า 18): วันเสาร์/อาทิตย์/จันทร์ มักมี 9 หรือ 8 แทรก
-        if (day === 6 || day === 7) core.add(9);
-        if (day === 1 || day === 2) core.add(8);
+        // กฎ Shadow (ถ้าเลขน้อยไปให้เพิ่ม 9 ตามสถิติวิจัยยามซอย)
+        if (core.size < 4) core.add(9);
+        
+        // เติมเลขคู่ธาตุ (กรณีพิเศษวันเสาร์/อาทิตย์)
+        if (b1 === 6 || b1 === 7) core.add(1);
 
-        // แปลงเป็น Array และคุมปริมาณ
-        let finalStars = Array.from(core).filter(n => n !== null).slice(0, 4);
+        let finalStars = Array.from(core).slice(0, 4);
 
-        // 3. แสดงผล
-        document.getElementById('stars').innerHTML = finalStars.map(s => `<div class="star-circle">${s}</div>`).join('');
+        // 4. แสดงผล
+        document.getElementById('coreStars').innerHTML = finalStars.map(s => `<div class="star-box">${s}</div>`).join('');
 
-        // ชุด 2 หลัก (สุ่มจับคู่จาก Core)
         let p2 = [];
-        for(let i=0; i<finalStars.length; i++) {
-            for(let j=i+1; j<finalStars.length; j++) {
+        for(let i=0; i<finalStars.length; i++){
+            for(let j=i+1; j<finalStars.length; j++){
                 p2.push(`${finalStars[i]}${finalStars[j]}`);
-                if(p2.length >= 4) break;
             }
         }
-        document.getElementById('pairs2').innerHTML = p2.map(n => `<div class="num-item">${n}</div>`).join('');
+        document.getElementById('pairs2').innerHTML = p2.slice(0, 4).map(n => `<div class="num-card">${n}</div>`).join('');
 
-        // ชุด 3 หลัก (ผสมจาก Core)
         let p3 = [];
         if(finalStars.length >= 3) {
             p3.push(`${finalStars[0]}${finalStars[1]}${finalStars[2]}`);
-            if(finalStars.length >= 4) p3.push(`${finalStars[1]}${finalStars[2]}${finalStars[3]}`);
+            p3.push(`${finalStars[1]}${finalStars[2]}${finalStars[3]}`);
         }
-        document.getElementById('pairs3').innerHTML = p3.map(n => `<div class="num-item">${n}</div>`).join('');
+        document.getElementById('pairs3').innerHTML = p3.map(n => `<div class="num-card">${n}</div>`).join('');
 
-        // แสดง Debug ข้อมูลฐาน
-        document.getElementById('debugInfo').innerHTML = `
-            <strong>ข้อมูลเชิงเทคนิค:</strong><br>
-            • ฐานวัน: ${day} | ฐานเดือนไทย: ${monthThai} | ฐานปี: ${yearThai}<br>
-            • ฐานรองรับ (Base 4): ${base4} (ใช้เลข ${base4Single})<br>
-            • สถิติจุด Resonance: พบความสอดคล้องในช่วงเวลา 16.45 น.
+        document.getElementById('debug').innerHTML = `
+            <strong>วิเคราะห์ฐานเลข:</strong><br>
+            • ฐานวัน: ${b1} | ฐานเดือนไทย: ${b2} | ฐานปี: ${b3}<br>
+            • ฐานที่ 4 (ฐานรองรับ): ${sum} => ${b4}<br>
+            • กฎที่ใช้: Saturn-Zero และ Shadow Resonance
         `;
-
         document.getElementById('results').style.display = 'block';
     }
 </script>
