@@ -3,136 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twilight V15 - Perfect 21 Houses</title>
+    <title>Twilight V17 - Raw Foundation Display</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root { --gold: #f1c40f; --bg: #0d0e14; --card: #1c1e26; --accent: #e74c3c; }
         body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: #ecf0f1; margin: 0; padding: 15px; }
-        .app-container { max-width: 650px; margin: auto; background: var(--card); padding: 25px; border-radius: 25px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        h1 { color: var(--gold); text-align: center; font-size: 1.5rem; margin-bottom: 5px; }
+        .app-container { max-width: 600px; margin: auto; background: var(--card); padding: 25px; border-radius: 25px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
         .input-box { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; margin-bottom: 25px; border: 1px solid #444; }
         label { display: block; font-size: 0.85rem; color: var(--gold); margin-bottom: 8px; font-weight: bold; }
         input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #444; background: #000; color: #fff; font-size: 1rem; margin-bottom: 15px; box-sizing: border-box; }
         button { width: 100%; padding: 18px; background: linear-gradient(135deg, #f1c40f, #d35400); color: #000; border: none; border-radius: 15px; font-weight: bold; font-size: 1.3rem; cursor: pointer; transition: 0.3s; }
         
         .chart-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #000; table-layout: fixed; }
-        .chart-table th, .chart-table td { border: 1px solid #333; padding: 10px; text-align: center; font-size: 1.1rem; }
-        .chart-table th { background: #1a1a1a; color: var(--gold); font-size: 0.7rem; }
-        .row-label { background: #1a1a1a; color: var(--gold); font-size: 0.75rem !important; width: 70px; }
-        .highlight { background: var(--accent) !important; color: #fff !important; font-weight: bold; }
-        .foundation-row { background: #2c3e50; color: var(--gold); font-weight: bold; }
-        .analysis-box { margin-top: 25px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 15px; border-left: 5px solid var(--gold); font-size: 0.9rem; line-height: 1.6; }
+        .chart-table th, .chart-table td { border: 1px solid #333; padding: 12px; text-align: center; font-size: 1.2rem; }
+        .chart-table th { background: #1a1a1a; color: var(--gold); font-size: 0.8rem; }
+        .row-label { background: #1a1a1a; color: var(--gold); font-size: 0.8rem !important; width: 90px; }
+        .foundation-row { background: #2c3e50; color: #fff; font-weight: bold; font-size: 1.4rem !important; }
+        
+        .analysis-box { margin-top: 25px; padding: 20px; background: rgba(0,0,0,0.5); border-radius: 15px; border-left: 5px solid var(--gold); }
+        .rule-item { margin-bottom: 10px; font-size: 0.9rem; line-height: 1.5; }
+        .highlight-text { color: var(--gold); font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <h1>Twilight V15 (Perfect 21 Houses)</h1>
+    <h1 style="color:var(--gold); text-align:center; margin-bottom: 5px;">Twilight V17</h1>
+    <p style="text-align:center; opacity:0.6; font-size:0.8rem; margin-bottom:20px;">แสดงผลรวมดิบฐานที่ 4 (แบบไม่ถอดรหัส)</p>
+    
     <div class="input-box">
-        <label>วันที่ออกรางวัล</label>
-        <input type="date" id="targetDate">
-        <label>เดือนไทย (มกราคม=2, ...)</label>
-        <select id="thaiMonth">
-            <option value="2">มกราคม (เดือน 2)</option><option value="3">กุมภาพันธ์ (เดือน 3)</option>
-            <option value="4">มีนาคม (เดือน 4)</option><option value="5">เมษายน (เดือน 5)</option>
-            <option value="6">พฤษภาคม (เดือน 6)</option><option value="7">มิถุนายน (เดือน 7)</option>
+        <label>1. เลือกวันที่ (เพื่อหาฐานวัน)</label>
+        <input type="date" id="tDate">
+        
+        <label>2. เลือกเดือนไทย (มกราคม=2, ...)</label>
+        <select id="tMonth">
+            <option value="2">มกราคม (เดือน 2)</option>
+            <option value="3">กุมภาพันธ์ (เดือน 3)</option>
+            <option value="4">มีนาคม (เดือน 4)</option>
+            <option value="5">เมษายน (เดือน 5)</option>
+            <option value="6">พฤษภาคม (เดือน 6)</option>
+            <option value="7">มิถุนายน (เดือน 7)</option>
             <option value="1">กรกฎาคม-ธันวาคม (1)</option>
         </select>
-        <button onclick="calculateV15()">ตั้งดวง & คำนวณฐาน 4</button>
+
+        <label>3. เลือกปีนักษัตร (ไทย)</label>
+        <select id="tYear">
+            <option value="6">ปีมะเส็ง (6)</option>
+            <option value="7">ปีมะเมีย (7)</option>
+            <option value="5">ปีมะโรง (5)</option>
+        </select>
+        
+        <button onclick="calculateV17()">คำนวณฐานเลข 21 ภพ</button>
     </div>
 
     <div id="resultArea" style="display:none;">
         <table class="chart-table">
             <thead>
-                <tr><th></th><th>เสา 1</th><th>เสา 2</th><th>เสา 3</th><th>เสา 4</th><th>เสา 5</th><th>เสา 6</th><th>เสา 7</th></tr>
+                <tr><th>ฐาน</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th></tr>
             </thead>
             <tbody id="chartBody"></tbody>
         </table>
-        <div class="analysis-box" id="analysisText"></div>
+
+        <div class="analysis-box">
+            <h3 style="color:var(--gold); margin-top:0;">สรุปการอ่านผลจากตาราง</h3>
+            <div id="summaryText" class="rule-item"></div>
+        </div>
     </div>
 </div>
 
 <script>
-    function calculateV15() {
-        const dVal = document.getElementById('targetDate').value;
+    function calculateV17() {
+        const dVal = document.getElementById('tDate').value;
         if(!dVal) return;
         const d = new Date(dVal);
 
-        // 1. ตั้งเลขตั้งต้น (ฐาน 1, 2, 3)
-        let b1_init = d.getDay() + 1; // อาทิตย์=1, ศุกร์=6
-        let b2_init = parseInt(document.getElementById('thaiMonth').value);
-        let b3_init = ((d.getFullYear() + 543) % 7) || 7;
+        // ฐาน 1, 2, 3 ตั้งต้น
+        let b1 = d.getDay() + 1; 
+        let b2 = parseInt(document.getElementById('tMonth').value);
+        let b3 = parseInt(document.getElementById('tYear').value);
 
-        let tableData = [[], [], [], []]; // 4 แถว
-
-        // 2. กระจายตัวเลข 21 ภพ (7 เสา)
-        for(let col=0; col<7; col++) {
-            tableData[0].push((b1_init + col - 1) % 7 + 1);
-            tableData[1].push((b2_init + col - 1) % 7 + 1);
-            tableData[2].push((b3_init + col - 1) % 7 + 1);
+        let rows = [[], [], []];
+        for(let i=0; i<7; i++) {
+            rows[0].push((b1 + i - 1) % 7 + 1);
+            rows[1].push((b2 + i - 1) % 7 + 1);
+            rows[2].push((b3 + i - 1) % 7 + 1);
         }
 
-        // 3. คำนวณฐานที่ 4 (ผลรวมของแต่ละเสา)
-        let luckySet = new Set();
-        for(let col=0; col<7; col++) {
-            let sum = tableData[0][col] + tableData[1][col] + tableData[2][col];
-            let displayVal;
-            let isHighlight = false;
-
-            // กฎตามที่คุณระบุ
-            if ([13, 14, 16].includes(sum)) {
-                displayVal = tableData[2][col]; // ยึดฐาน 3
-                isHighlight = true;
-            } else if (sum === 10 || sum === 20) {
-                displayVal = "7/0"; luckySet.add(0); luckySet.add(7);
-            } else if (sum === 9) {
-                displayVal = 9; luckySet.add(9);
-            } else if (sum === 12) {
-                displayVal = 8; luckySet.add(8);
-            } else if (sum === 15) {
-                displayVal = 2; luckySet.add(2);
-            } else if (sum === 17) {
-                displayVal = 4; luckySet.add(4);
-            } else if (sum === 19) {
-                displayVal = 5; luckySet.add(5);
-            } else if (sum === 21) {
-                displayVal = 6; luckySet.add(6);
-            } else {
-                displayVal = (sum % 7) || 7;
-                luckySet.add(displayVal);
-            }
-            
-            if(isHighlight) luckySet.add(displayVal);
-            tableData[3].push({ val: displayVal, sum: sum, isHighlight: isHighlight });
+        // คำนวณฐานที่ 4 (ผลรวมดิบ)
+        let b4_raw = [];
+        for(let i=0; i<7; i++) {
+            b4_raw.push(rows[0][i] + rows[1][i] + rows[2][i]);
         }
 
-        // 4. แสดงผลตาราง
-        const labels = ["ฐานวัน (1)", "ฐานเดือน (2)", "ฐานปี (3)", "ฐานที่ 4 (รวม)"];
-        let html = "";
-        for(let r=0; r<4; r++) {
-            html += `<tr><td class="row-label">${labels[r]}</td>`;
-            for(let c=0; c<7; c++) {
-                if(r < 3) {
-                    html += `<td>${tableData[r][c]}</td>`;
-                } else {
-                    let cell = tableData[r][c];
-                    html += `<td class="foundation-row ${cell.isHighlight ? 'highlight' : ''}" title="ผลรวมจริง: ${cell.sum}">${cell.val}</td>`;
-                }
-            }
-            html += `</tr>`;
-        }
+        // สร้างตาราง HTML
+        let html = `
+            <tr><td class="row-label">ฐานวัน (1)</td>${rows[0].map(n => `<td>${n}</td>`).join('')}</tr>
+            <tr><td class="row-label">ฐานเดือน (2)</td>${rows[1].map(n => `<td>${n}</td>`).join('')}</tr>
+            <tr><td class="row-label">ฐานปี (3)</td>${rows[2].map(n => `<td>${n}</td>`).join('')}</tr>
+            <tr class="foundation-row"><td class="row-label" style="color:#fff">ฐานที่ 4 (รวม)</td>${b4_raw.map(n => `<td>${n}</td>`).join('')}</tr>
+        `;
         document.getElementById('chartBody').innerHTML = html;
 
-        // 5. บทวิเคราะห์
-        document.getElementById('analysisText').innerHTML = `
-            <strong>วิเคราะห์ฐานที่ 4 (แม่นยำ):</strong><br>
-            • เสาที่รวมได้ 13, 14, 16 (สีแดง) ดึงเลขจากแถวฐานปีมาเป็นตัวแทน<br>
-            • เลขกำลังดาวที่ตรวจพบ: ${Array.from(luckySet).slice(0,5).join(', ')}<br>
-            • <i>หมายเหตุ:</i> ตรวจสอบผลรวมแต่ละเสาได้โดยการนำเมาส์ไปชี้ที่แถวฐานที่ 4
+        // บทวิเคราะห์ด้านล่าง (ถอดรหัสตามกฎที่คุณให้)
+        let luckySet = new Set();
+        b4_raw.forEach((sum, idx) => {
+            if([13,14,16].includes(sum)) luckySet.add(rows[2][idx]);
+            else if(sum === 10 || sum === 20) { luckySet.add(7); luckySet.add(0); }
+            else if(sum === 12) luckySet.add(8);
+            else if(sum === 15) luckySet.add(2);
+            else if(sum === 17) luckySet.add(4);
+            else if(sum === 19) luckySet.add(5);
+            else if(sum === 21) luckySet.add(6);
+            else luckySet.add(sum % 7 || 7);
+        });
+
+        let finalArr = Array.from(luckySet).map(n => n === 7 ? "7/0" : n);
+
+        document.getElementById('summaryText').innerHTML = `
+            • <b>ผลรวมที่ปรากฏในฐานที่ 4:</b> คือผลรวมจริงจาก 3 แถวด้านบน <br>
+            • <b>การถอดรหัสตามกฎ:</b> เมื่อพบ 13, 14, 16 ให้ยึดเลขแถวปีมาพิจารณา <br>
+            • <b>กลุ่มเลข Resonance ที่สกัดได้:</b> <span class="highlight-text">${finalArr.join(', ')}</span>
         `;
+
         document.getElementById('resultArea').style.display = 'block';
     }
 </script>
 
 </body>
-</html>
+    </html>
