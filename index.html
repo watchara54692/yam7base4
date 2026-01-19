@@ -3,38 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7-Digit Master (Full Interpretations)</title>
+    <title>7-Digit Master: Pillar Analysis</title>
     <style>
-        :root { --primary: #1a2a3a; --gold: #c5a02e; --bg: #f8f9fa; --kalakini: #ffcdd2; --good-base: #fff9c4; --personal: #e3f2fd; }
+        :root { --primary: #1a2a3a; --gold: #c5a02e; --bg: #f4f7f6; --kalakini: #ffcdd2; --good-base: #fff9c4; --personal: #e3f2fd; }
         body { font-family: 'Tahoma', sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .container { background: white; border: 1px solid #ddd; border-radius: 12px; max-width: 650px; width: 100%; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        
+        .container { background: white; border: 1px solid #ddd; border-radius: 12px; max-width: 650px; width: 100%; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
         input, button { padding: 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 15px; }
-        button { cursor: pointer; background: var(--primary); color: white; border: none; font-weight: bold; }
+        button { cursor: pointer; background: var(--primary); color: white; border: none; font-weight: bold; transition: 0.3s; }
+        button:hover { opacity: 0.9; }
         .btn-now { background: var(--gold); }
-
         .result-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 15px; }
-        td { border: 1px solid #333; text-align: center; vertical-align: middle; padding: 8px 0; height: 65px; cursor: pointer; transition: 0.2s; }
-        td:active { transform: scale(0.95); }
-        
+        td { border: 1px solid #333; text-align: center; vertical-align: middle; padding: 8px 0; height: 65px; cursor: pointer; }
         .house-label { font-size: 10px; color: #555; display: block; margin-bottom: 2px; }
         .digit-value { font-size: 24px; font-weight: bold; display: block; }
-        
-        /* Highlights */
         .is-kalakini { background: var(--kalakini) !important; color: #b71c1c; }
         .is-good-base { background: var(--good-base); border: 2px solid var(--gold); }
-        .is-bad-house { color: #d32f2f; background: #fff5f5; }
-        .is-personal { border: 2px dashed #2196f3; background: var(--personal); }
-
         .row-base { border-top: 2px solid #333; background: #fafafa; }
         .base-label { font-size: 10px; font-weight: bold; color: #b71c1c; }
         .base-value { font-size: 24px; font-weight: bold; color: #b71c1c; }
-        
-        .details-panel { padding: 15px; background: #fff; border: 2px solid var(--primary); border-radius: 8px; font-size: 14px; min-height: 120px; line-height: 1.6; }
+        .details-panel { padding: 15px; background: #fff; border: 2px solid var(--primary); border-radius: 8px; font-size: 14px; min-height: 150px; line-height: 1.6; }
         .details-title { font-weight: bold; color: var(--primary); border-bottom: 2px solid var(--gold); margin-bottom: 10px; padding-bottom: 5px; font-size: 16px; }
-        .good-tag { color: #2e7d32; font-weight: bold; background: #e8f5e9; padding: 2px 6px; border-radius: 4px; }
-        .bad-tag { color: #d32f2f; font-weight: bold; background: #ffebee; padding: 2px 6px; border-radius: 4px; }
+        .pillar-box { background: #eef2f5; padding: 8px; border-radius: 5px; margin-bottom: 10px; font-weight: bold; color: #2c3e50; border-left: 4px solid var(--gold); }
+        .good-tag { color: #2e7d32; font-weight: bold; }
+        .bad-tag { color: #d32f2f; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -46,41 +38,43 @@
         <button class="btn-now" onclick="setNow()">เวลาปัจจุบัน</button>
         <button onclick="calculateYam()">ตั้งดวงยาม</button>
     </div>
-
     <table class="result-table"><tbody id="tableBody"></tbody></table>
-
     <div id="detailsBox" class="details-panel">
-        <div id="detailsTitle" class="details-title">วิเคราะห์ดวงยาม</div>
-        <div id="detailsContent">คลิกที่ช่องภพหรือเลขฐานเพื่ออ่านคำพยากรณ์เจาะลึก</div>
+        <div id="detailsTitle" class="details-title">บทวิเคราะห์เสาพยากรณ์</div>
+        <div id="detailsContent">คลิกที่เลขฐานเพื่อวิเคราะห์ความสัมพันธ์ของ 3 ภพเหนือฐาน</div>
     </div>
 </div>
 
 <script>
-    const houseList = [
+    const houses = [
         ["อัตตะ", "หินะ", "ธนัง", "ปิตา", "มาตา", "โภคา", "มัชฌิมา"],
         ["ตนุ", "กดุมภะ", "สหัชชะ", "พันธุ", "ปุตตะ", "อริ", "ปัตนิ"],
         ["มรณะ", "สุภะ", "กัมมะ", "ลาภะ", "พยายะ", "ทาสา", "ทาสี"]
     ];
 
-    const planetStyles = {
-        1: { name: "อาทิตย์", good: "เด่นเรื่องยศศักดิ์ ชื่อเสียง การเป็นผู้นำ มีความเชื่อมั่นสูง", bad: "ใจร้อน ถือตัวจัด มักมีเรื่องขัดแย้งกับผู้ใหญ่" },
-        2: { name: "จันทร์", good: "เมตตามหานิยม มีโชคเรื่องเงินทองไหลมาเทมา งานบริการเด่น", bad: "จิตรวนเวาย ใจอ่อนเกินเหตุ ถูกหลอกง่าย" },
-        3: { name: "อังคาร", good: "ขยันขันแข็ง ทำงานเร็ว กล้าตัดสินใจ ชนะศัตรูคู่แข่ง", bad: "อุบัติเหตุ การผ่าตัด ทะเลาะวิวาท ใจร้อนวู่วาม" },
-        4: { name: "พุธ", good: "ฉลาดในการเจรจา เอกสารสัญญาเรียบร้อย ธุรกิจรุ่งเรือง", bad: "ระวังคำพูดพล่อยๆ เอกสารผิดพลาด ถูกนินทา" },
-        5: { name: "พฤหัส", good: "ผู้ใหญ่เมตตา ประสบความสำเร็จด้านความรู้ มีศีลธรรม", bad: "ดื้อรั้นในทฤษฎี เชื่อมั่นตัวเองจนไม่ฟังใคร" },
-        6: { name: "ศุกร์", good: "โชคลาภเงินทอง ความรักสมหวัง มีความสุขสำราญ", bad: "ฟุ่มเฟือย หลงระเริงในกามารมณ์ ปัญหาความรัก" },
-        7: { name: "เสาร์", good: "ความมั่นคงระยะยาว อสังหาริมทรัพย์ มรดก ความอดทน", bad: "เครียดจัด ภาระหนักอึ้ง โรคเรื้อรัง การรอคอยที่ทรมาน" }
+    const baseInterpretations = {
+        3: { name: "กำลังดาวจันทร์ (เล็ก)", good: "มีเสน่ห์ เมตตา มีการเปลี่ยนแปลงในทางที่ดีนุ่มนวล", bad: "โลเล จิตใจอ่อนไหวง่าย พึ่งพาใครลำบาก" },
+        4: { name: "กำลังดาวพุธ (เล็ก)", good: "เจรจาดี มีไหวพริบ สื่อสารคล่องตัว", bad: "ระวังคำพูดสร้างศัตรู เอกสารมีปัญหา" },
+        5: { name: "กำลังดาวพฤหัส (เล็ก)", good: "มีผู้ใหญ่ให้คำปรึกษา เริ่มต้นเรียนรู้สิ่งใหม่ได้ดี", bad: "ดื้อรั้น ยึดติดความคิดตัวเองเกินไป" },
+        6: { name: "กำลังดาวอาทิตย์", good: "มีชื่อเสียง มีพลังสร้างสรรค์ กล้าเผชิญหน้า", bad: "ใจร้อน อวดดี ระวังเรื่องยศตำแหน่ง" },
+        7: { name: "กำลังดาวเสาร์ (เล็ก)", good: "มีความอดทนสูง ทำงานละเอียดได้ดี", bad: "เครียดจัด วิตกกังวล อมทุกข์" },
+        8: { name: "กำลังดาวอังคาร", good: "ขยัน รวดเร็ว ชนะอุปสรรคด้วยความกล้า", bad: "ระวังอุบัติเหตุ ทะเลาะวิวาท ตัดสินใจวู่วาม" },
+        9: { name: "พระเกตุ", good: "สิ่งศักดิ์สิทธิ์คุ้มครอง ลางสังหรณ์แม่น โชคลาภกะทันหัน", bad: "เพ้อฝัน ฟุ้งซ่าน เข้าใจยาก" },
+        10: { name: "กำลังดาวเสาร์ (มฤตยู)", good: "การเปลี่ยนแปลงเพื่อสิ่งใหม่ ความมั่นคงระยะยาว", bad: "ภาระหนักอึ้ง ความลับที่ถูกเปิดเผย เรื่องคาดไม่ถึง" },
+        11: { name: "ราชาโชค", good: "โชคลาภมาเองโดยไม่ต้องเหนื่อย มีคนหยิบยื่นโอกาสให้", bad: "ประมาท ขาดการเตรียมตัวเพราะได้มาง่าย" },
+        12: { name: "กำลังดาวราหู", good: "พลิกแพลงเก่ง ทันคน ธุรกิจสีเทาโดดเด่น", bad: "มัวเมา หลงผิด ถูกหลอกลวงหรือไปหลอกเขา" },
+        13: { name: "มหาอุจ (กำลังอังคาร)", good: "พลังอำนาจสูงสุด แข็งแกร่ง ชนะคู่แข่งเด็ดขาด", bad: "แตกหักง่าย ใช้อารมณ์จนเสียเรื่อง" },
+        14: { name: "จักรพรรดิ", good: "มั่งคั่ง มั่นคง บารมีสูง ได้เป็นเจ้าคนนายคน", bad: "ภาระรับผิดชอบสูงมากจนเครียด" },
+        15: { name: "กำลังดาวจันทร์ (มหาเสน่ห์)", good: "เมตตามหานิยม ทรัพย์สินไหลลื่น มีความสุขสมหวัง", bad: "ใจอ่อนจนเสียการ ฟุ่มเฟือยเกินตัว" },
+        16: { name: "โสฬสมงคล", good: "มงคลสูงสุด ปลอดภัยจากอันตราย ประสบความสำเร็จรอบด้าน", bad: "หากทำผิดศีลจะได้รับผลกรรมเร็วและแรง" },
+        17: { name: "กำลังดาวพุธ (มหาปัญญา)", good: "สติปัญญาเลิศ เจรจาค้าขายรุ่งเรืองที่สุด", bad: "คิดมากเกินไปจนประสาทเสีย หรือใช้เล่ห์เหลี่ยมเกินไป" },
+        18: { name: "มหาจักร", good: "ความสำเร็จที่ต้องบุกเบิก ลุยแล้วรวยยิ่งใหญ่", bad: "เหนื่อยยากลำบากก่อนจะสบายสายตัวแทบขาด" },
+        19: { name: "กำลังดาวพฤหัส (มหาเศรษฐี)", good: "ผู้ใหญ่หนุนหลังสำเร็จยิ่งใหญ่ มั่งคั่งด้วยปัญญาและทรัพย์", bad: "ถูกคาดหวังสูง ต้องทำตัวเป็นแบบอย่างตลอดเวลา" },
+        20: { name: "กำลังดาวเสาร์ (มหาทุกข์)", good: "โครงการใหญ่ระดับชาติ ความอดทนเป็นเลิศ", bad: "ทุกข์สาหัส ภาระหนี้สิน ความเศร้าโศกเรื้อรัง" },
+        21: { name: "กำลังดาวศุกร์ (มหาลาภ)", good: "ความรัก ทรัพย์สมบัติ ความสำราญครบถ้วน", bad: "หลงมัวเมาในกามารมณ์และกิเลส" }
     };
 
-    const houseMeanings = {
-        "ธนัง": "เรื่องเงินทอง การเก็บออม ทรัพย์สินติดตัว",
-        "กดุมภะ": "รายได้ การทำมาหากิน กระแสเงินสด",
-        "ลาภะ": "โชคลาภกะทันหัน ความสำเร็จที่เหนือความคาดหมาย",
-        "อัตตะ": "ตัวตน สภาวะจิตใจ พฤติกรรมในขณะนี้",
-        "หินะ": "ความเสื่อม อุปสรรค จุดอ่อนที่ต้องระวัง",
-        "โภคา": "บ้าน ที่อยู่อาศัย รถยนต์ ทรัพย์สินชิ้นใหญ่",
-        "กัมมะ": "หน้าที่การงาน ความรับผิดชอบ สิ่งที่กำลังทำ"
-    };
+    let currentGrid = [];
 
     function setNow() {
         const now = new Date();
@@ -94,63 +88,65 @@
         const tIn = document.getElementById('inputTime').value;
         if(!dIn || !tIn) return;
         let dt = new Date(dIn + 'T' + tIn);
-        let d = dt.getDay() === 0 ? 1 : dt.getDay() + 1;
-        let h = dt.getHours();
-        let bioD = (h < 6) ? (d === 1 ? 7 : d - 1) : d;
-        let totalM = (h * 60) + dt.getMinutes();
-        let isN = (totalM >= 1080 || totalM < 360);
-        let refT = isN ? (totalM < 360 ? totalM + 1440 : totalM) - 1080 : totalM - 360;
-        let yIdx = Math.floor(refT / 90) + 1;
-        let fY = isN ? ((bioD + 4 > 7) ? bioD + 4 - 7 : bioD + 4) : bioD;
+        let dayOfWeek = dt.getDay() === 0 ? 1 : dt.getDay() + 1;
+        let hours = dt.getHours();
+        let totalMin = (hours * 60) + dt.getMinutes();
+        let bioDay = (hours < 6) ? (dayOfWeek === 1 ? 7 : dayOfWeek - 1) : dayOfWeek;
+        let isNight = (totalMin >= 1080 || totalMin < 360);
+        let refTime = isNight ? (totalMin < 360 ? totalMin + 1440 : totalMin) - 1080 : totalMin - 360;
+        let yamIdx = Math.floor(refTime / 90) + 1;
+        let firstY = isNight ? ((bioDay + 4 > 7) ? bioDay + 4 - 7 : bioDay + 4) : bioDay;
         const seq = [1, 6, 4, 2, 7, 5, 3];
-        let mY = fY;
-        for(let i=1; i<yIdx; i++) { mY = seq[(seq.indexOf(mY) + 1) % 7]; }
-        let lY = (mY + Math.floor((refT % 90) / 12.85) ) % 7 || 7;
-        renderTable(bioD, mY, lY);
+        let mYam = firstY;
+        for(let i=1; i < yamIdx; i++) { mYam = seq[(seq.indexOf(mYam) + 1) % 7]; }
+        let lYam = (mYam + Math.floor((refTime % 90) / 12.85)) % 7 || 7;
+        renderTable(bioDay, mYam, lYam);
     }
 
     function renderTable(d, y, ly) {
         const tb = document.getElementById('tableBody'); tb.innerHTML = '';
         const kala = { 1:6, 2:1, 3:2, 4:3, 5:7, 6:5, 7:4 }[d];
-        const res = [[], [], []]; const base = [];
+        currentGrid = [[], [], []]; const bases = [];
         for(let i=0; i<7; i++) {
-            res[0].push((d + i) % 7 || 7); res[1].push((y + i) % 7 || 7); res[2].push((ly + i) % 7 || 7);
-            base.push(res[0][i] + res[1][i] + res[2][i]);
+            currentGrid[0].push((d + i) % 7 || 7);
+            currentGrid[1].push((y + i) % 7 || 7);
+            currentGrid[2].push((ly + i) % 7 || 7);
+            bases.push(currentGrid[0][i] + currentGrid[1][i] + currentGrid[2][i]);
         }
         for(let r=0; r<3; r++) {
             let tr = document.createElement('tr');
             for(let c=0; c<7; c++) {
-                let v = res[r][c]; let h = houseList[r][c];
+                let v = currentGrid[r][c]; let h = houses[r][c];
                 let cls = v === kala ? 'is-kalakini' : (["หินะ", "อริ", "มรณะ", "พยายะ"].includes(h) ? 'is-bad-house' : '');
-                if([7,4,3].includes(v)) cls += ' is-personal';
-                tr.innerHTML += `<td class="${cls}" onclick="showDeepInfo('${h}',${v})"><span class="house-label">${h}</span><span class="digit-value">${v}</span></td>`;
+                tr.innerHTML += `<td><span class="house-label">${h}</span><span class="digit-value">${v}</span></td>`;
             }
             tb.appendChild(tr);
         }
         let trB = document.createElement('tr'); trB.className = 'row-base';
         for(let b=0; b<7; b++) {
-            let v = base[b]; let cls = [14, 15, 16, 19].includes(v) ? 'is-good-base' : '';
-            trB.innerHTML += `<td class="${cls}" onclick="showBaseInfo(${v})"><span class="base-label">ฐาน</span><span class="base-value">${v}</span></td>`;
+            let val = bases[b]; let cls = [14, 15, 16, 19].includes(val) ? 'is-good-base' : '';
+            trB.innerHTML += `<td class="${cls}" onclick="analyzePillar(${b}, ${val})"><span class="base-label">ฐาน</span><span class="base-value">${val}</span></td>`;
         }
         tb.appendChild(trB);
     }
 
-    function showDeepInfo(h, v) {
-        const p = planetStyles[v];
-        const hExp = houseMeanings[h] || "ความหมายตามภพพยากรณ์ทั่วไป";
-        document.getElementById('detailsTitle').innerHTML = `วิเคราะห์ภพ ${h} (ดาว ${v})`;
+    function analyzePillar(col, baseVal) {
+        const p1 = houses[0][col], p2 = houses[1][col], p3 = houses[2][col];
+        const v1 = currentGrid[0][col], v2 = currentGrid[1][col], v3 = currentGrid[2][col];
+        const data = baseInterpretations[baseVal] || { name: "ฐานทั่วไป", good: "พิจารณาตามดาวประธาน", bad: "พิจารณาตามภพสถิต" };
+        
+        document.getElementById('detailsTitle').innerHTML = `วิเคราะห์เสาที่ ${col+1}: สรุปผลที่ฐาน ${baseVal}`;
         document.getElementById('detailsContent').innerHTML = `
-            <strong>บริบทภพ:</strong> ${hExp}<br>
-            <span class="good-tag">ทางดี:</span> ${p.name} ในภพนี้ช่วยให้${p.good}<br>
-            <span class="bad-tag">ทางเสีย:</span> ระวังอิทธิพลของ ${p.name} จะทำให้${p.bad}
+            <div class="pillar-box">เส้นทางเสา: ${p1}(${v1}) $\rightarrow$ ${p2}(${v2}) $\rightarrow$ ${p3}(${v3})</div>
+            <strong>บทสรุปเสานี้:</strong> เรื่องราวของ <strong>${p1}, ${p2} และ ${p3}</strong> จะถูกขับเคลื่อนด้วยพลังของ <strong>${data.name}</strong><br>
+            <span class="good-tag">จุดดี:</span> ${data.good}<br>
+            <span class="bad-tag">จุดเสีย:</span> ${data.bad}<br>
+            <hr>
+            <em>คำแนะนำ: หากเลขฐานนี้เป็นเลขมงคล (ขอบทอง) แสดงว่าผลลัพธ์ของภพทั้ง 3 จะจบลงด้วยความสำเร็จที่มั่นคงครับ</em>
         `;
     }
 
-    function showBaseInfo(b) {
-        const baseMap = { 14: "จักรพรรดิ (ความสำเร็จยิ่งใหญ่)", 15: "กำลังจันทร์ (ลาภลื่นไหล)", 16: "โสฬสมงคล (คุ้มภัย)", 19: "กำลังพฤหัส (ผู้ใหญ่หนุน)", 13: "มหาอุจ (รุนแรงแต่รุ่งเรือง)", 9: "พระเกตุ (ลางสังหรณ์)" };
-        document.getElementById('detailsTitle').innerHTML = `วิเคราะห์ฐานที่ 4 (เลข ${b})`;
-        document.getElementById('detailsContent').innerHTML = `ฐานเลข <strong>${b}</strong> คือ <strong>${baseMap[b] || "กำลังดาวสะสม"}</strong> บ่งบอกถึงพื้นฐานของเรื่องราวในเสานี้ว่ามีความมั่นคงหรือแปรปรวนเพียงใด`;
-    }
+    window.onload = setNow;
 </script>
 </body>
 </html>
