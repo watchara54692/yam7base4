@@ -3,42 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twilight V10 - Resonance Timeline</title>
+    <title>Twilight Resonance V11 - 7-Base Complete</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #f39c12; --bg: #0b0e14; --card: #1a1f29; --accent: #ff4757; --bar-bg: #2c3e50; }
+        :root { --gold: #f1c40f; --bg: #0a0a0c; --card: #16161d; --accent: #ff4757; }
         body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: #ecf0f1; margin: 0; padding: 15px; }
-        .app-container { max-width: 550px; margin: auto; background: var(--card); padding: 25px; border-radius: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.7); border: 1px solid #333; }
-        h1 { color: var(--gold); text-align: center; font-size: 1.6rem; margin-bottom: 5px; text-transform: uppercase; }
-        .input-box { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 20px; margin-bottom: 25px; border: 1px solid #444; }
-        label { display: block; font-size: 0.85rem; color: var(--gold); margin-bottom: 8px; font-weight: bold; }
-        input, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #444; background: #000; color: #fff; font-size: 1rem; margin-bottom: 15px; box-sizing: border-box; }
-        button { width: 100%; padding: 18px; background: linear-gradient(135deg, #f39c12, #e67e22); color: #000; border: none; border-radius: 15px; font-weight: bold; font-size: 1.3rem; cursor: pointer; transition: 0.3s; }
-        button:hover { transform: scale(1.02); box-shadow: 0 10px 20px rgba(243, 156, 18, 0.3); }
-
-        /* Timeline Styles */
-        .timeline-section { display: none; margin-top: 30px; }
-        .timeline-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; margin-bottom: 10px; border-left: 5px solid var(--gold); }
-        .time-label { font-weight: bold; color: var(--gold); font-size: 1.1rem; display: flex; justify-content: space-between; }
-        .power-bar-container { background: var(--bar-bg); height: 10px; border-radius: 5px; margin-top: 10px; overflow: hidden; }
-        .power-bar { background: linear-gradient(to right, #f1c40f, #ff4757); height: 100%; transition: 0.5s; }
-        .res-stars { margin-top: 8px; font-size: 1.2rem; font-weight: bold; color: #fff; }
+        .container { max-width: 500px; margin: auto; background: var(--card); padding: 25px; border-radius: 25px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        h1 { color: var(--gold); text-align: center; font-size: 1.5rem; margin-bottom: 5px; }
+        .input-section { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; margin-bottom: 25px; border: 1px solid #444; }
+        label { display: block; font-size: 0.85rem; color: var(--gold); margin-bottom: 10px; font-weight: bold; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #444; background: #000; color: #fff; font-size: 1rem; margin-bottom: 15px; box-sizing: border-box; }
+        button { width: 100%; padding: 18px; background: var(--gold); color: #000; border: none; border-radius: 15px; font-weight: bold; font-size: 1.3rem; cursor: pointer; transition: 0.3s; }
         
-        .result-badge { background: #000; padding: 15px; border-radius: 15px; text-align: center; margin-bottom: 20px; border: 1px solid var(--gold); }
-        .star-circle { display: inline-block; width: 50px; height: 50px; line-height: 50px; background: var(--gold); color: #000; border-radius: 50%; font-size: 1.6rem; font-weight: bold; margin: 5px; }
+        /* ฐานเลข 7 ตัว 4 ฐาน Display */
+        .base-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 15px; border: 1px solid var(--gold); }
+        .base-item { text-align: center; border: 1px solid #333; padding: 10px; border-radius: 8px; }
+        .base-label { font-size: 0.7rem; color: var(--gold); display: block; }
+        .base-value { font-size: 1.5rem; font-weight: bold; }
+        .foundation-box { grid-column: span 3; background: var(--gold); color: #000; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; }
+
+        .result-panel { display: none; margin-top: 25px; }
+        .star-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .star-box { width: 55px; height: 55px; background: #000; color: var(--gold); border: 2px solid var(--gold); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; box-shadow: 0 0 15px rgba(241, 196, 15, 0.3); }
+        .timeline-card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; margin-top: 10px; border-left: 4px solid var(--gold); }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <h1>Twilight V10</h1>
-    <p style="text-align:center; opacity:0.6; font-size:0.8rem;">ระบบวิเคราะห์ Timeline พลังงานตัวเลข</p>
-
-    <div class="input-box">
-        <label>วันที่ออกรางวัล</label>
-        <input type="date" id="targetDate">
+<div class="container">
+    <h1>Twilight V11 (7-Base Mode)</h1>
+    
+    <div class="input-section">
+        <label>1. วันที่ออกรางวัล (พ.ศ.)</label>
+        <input type="date" id="inputDate">
         
-        <label>เดือนไทย (มกราคม=2, ...)</label>
+        <label>2. เดือนไทย (มกราคม=2, กุมภาพันธ์=3...)</label>
         <select id="thaiMonth">
             <option value="2">มกราคม (เดือน 2)</option>
             <option value="3">กุมภาพันธ์ (เดือน 3)</option>
@@ -48,98 +47,85 @@
             <option value="7">มิถุนายน (เดือน 7)</option>
             <option value="1">กรกฎาคม-ธันวาคม (1)</option>
         </select>
-
-        <label>ปีนักษัตร (2569=7, 2568=6, 2567=5)</label>
-        <input type="number" id="thaiYear" value="7">
     </div>
 
-    <button onclick="generateTimeline()">วิเคราะห์ Timeline พลังงาน</button>
+    <button onclick="calculateV11()">คำนวณฐานเลข & Resonance</button>
 
-    <div id="results" class="timeline-section">
-        <div class="result-badge">
-            <label>เลขฐานหลัก (Base Core)</label>
-            <div id="baseStars"></div>
-        </div>
-
-        <h3 style="color:var(--gold); border-bottom: 1px solid #333; pb: 5px;">ตาราง Resonance ตามช่วงเวลา</h3>
-        <div id="timelineContainer"></div>
+    <div id="results" class="result-panel">
+        <div class="base-grid" id="baseGrid"></div>
+        
+        <h3 style="color:var(--gold); text-align:center;">เลข Resonance สูงสุด</h3>
+        <div class="star-row" id="coreStars"></div>
+        
+        <div id="timelineArea"></div>
     </div>
 </div>
 
 <script>
-    const yamaSeq = {
-        0: [1, 6, 4, 2, 7, 5, 3, 1], // อา
-        1: [2, 7, 5, 3, 1, 6, 4, 2], // จ
-        2: [3, 1, 6, 4, 2, 7, 5, 3], // อ
-        3: [4, 2, 7, 5, 3, 1, 6, 4], // พ
-        4: [5, 3, 1, 6, 4, 2, 7, 5], // พฤ
-        5: [6, 4, 2, 7, 5, 3, 1, 6], // ศ
-        6: [7, 5, 3, 1, 6, 4, 2, 7]  // ส
+    const yamaLookup = {
+        0: [1, 6, 4, 2, 7, 5, 3, 1], 1: [2, 7, 5, 3, 1, 6, 4, 2],
+        2: [3, 1, 6, 4, 2, 7, 5, 3], 3: [4, 2, 7, 5, 3, 1, 6, 4],
+        4: [5, 3, 1, 6, 4, 2, 7, 5], 5: [6, 4, 2, 7, 5, 3, 1, 6],
+        6: [7, 5, 3, 1, 6, 4, 2, 7]
     };
 
-    function generateTimeline() {
-        const dVal = document.getElementById('targetDate').value;
-        if(!dVal) return alert("กรุณาเลือกวันที่");
-        const d = new Date(dVal);
-        const day = d.getDay() === 0 ? 7 : d.getDay();
-        const month = parseInt(document.getElementById('thaiMonth').value);
-        const year = parseInt(document.getElementById('thaiYear').value);
+    function calculateV11() {
+        const d_raw = document.getElementById('inputDate').value;
+        if(!d_raw) return;
+        const d = new Date(d_raw);
+        
+        // ฐานที่ 1: วัน (1-7, อาทิตย์=1)
+        let b1 = d.getDay() + 1; 
+        // ฐานที่ 2: เดือนไทย
+        let b2 = parseInt(document.getElementById('thaiMonth').value);
+        // ฐานที่ 3: ปีนักษัตร (พ.ศ. % 7 || 7)
+        let b3 = ((d.getFullYear() + 543) % 7) || 7; 
+        
+        // ฐานที่ 4: ฐานรองรับ
+        let sum = b1 + b2 + b3;
+        let b4_result = [];
+        let note = "";
 
-        // 1. คำนวณฐาน 4 ตามกฎพิเศษ
-        let sum = day + month + year;
-        let b4Stars = [];
-        let baseNote = "";
-
+        // กฎถอดรหัสฐานที่ 4
         if ([13, 14, 16].includes(sum)) {
-            b4Stars.push(year); // ยึดฐาน 3
-            baseNote = "ฐานมงคลพิเศษ (ยึดฐาน 3)";
+            b4_result.push(b3); // ยึดฐาน 3
+            note = sum === 13 ? "มหาอุด" : sum === 14 ? "จักรพรรดิ" : "โสฬสมงคล";
         } else {
-            const pMap = { 12:8, 15:2, 17:4, 19:5, 21:6, 10:0, 20:0 };
-            b4Stars.push(pMap[sum] || (sum % 7 || 7));
-            baseNote = "ฐานกำลังดาวปกติ";
+            const pMap = { 9:9, 10:0, 20:0, 12:8, 15:2, 17:4, 19:5, 21:6 };
+            let res = pMap[sum] || (sum % 7 || 7);
+            if(sum === 10 || sum === 20) { b4_result.push(7, 0); } else { b4_result.push(res); }
+            note = "กำลังพระเคราะห์";
         }
-        
-        const coreStars = [day, month, ...b4Stars];
-        document.getElementById('baseStars').innerHTML = coreStars.map(s => `<div class="star-circle">${s}</div>`).join('');
 
-        // 2. สร้าง Timeline (13:00 - 18:00)
+        // แสดงตารางฐาน
+        document.getElementById('baseGrid').innerHTML = `
+            <div class="base-item"><span class="base-label">ฐานวัน</span><span class="base-value">${b1}</span></div>
+            <div class="base-item"><span class="base-label">ฐานเดือน</span><span class="base-value">${b2}</span></div>
+            <div class="base-item"><span class="base-label">ฐานปี</span><span class="base-value">${b3}</span></div>
+            <div class="foundation-box">ฐานที่ 4 (รวม ${sum}): ${note} -> เลข [${b4_result}]</div>
+        `;
+
+        // สรุปเลข Resonance (B1, B2, B4)
+        let finalSet = new Set([b1, b2, ...b4_result]);
+        if(finalSet.has(7)) finalSet.add(0);
+        let finalArray = Array.from(finalSet).slice(0, 4);
+        document.getElementById('coreStars').innerHTML = finalArray.map(s => `<div class="star-box">${s}</div>`).join('');
+
+        // ยาม Timeline
+        const times = ["16:00", "16:45"];
         let timelineHTML = "";
-        const times = ["13:00", "14:30", "16:00", "16:45", "17:00"];
-        
         times.forEach(t => {
             const [h, m] = t.split(':').map(Number);
-            const totalMins = (h * 60) + m;
-            const startMins = 6 * 60;
-            let yIdx = Math.floor((totalMins - startMins) / 90);
-            if(yIdx > 7) yIdx = 7;
-            
-            let yamaStar = yamaSeq[d.getDay()][yIdx];
-            
-            // คำนวณความแรง (Resonance Score)
-            let score = 40; 
-            if(coreStars.includes(yamaStar)) score += 40;
-            if(yamaStar === 7 || yamaStar === 0) score += 10; // กฎ Saturn-Zero
-            if(yamaStar === 9) score += 10;
-
-            let displayStar = yamaStar;
-            if(yamaStar === 7) displayStar = "7/0";
-
+            const yIdx = Math.floor(((h*60 + m) - 360)/90);
+            let yStar = yamaLookup[d.getDay()][yIdx];
             timelineHTML += `
-                <div class="timeline-item">
-                    <div class="time-label">
-                        <span>เวลา ${t} น.</span>
-                        <span style="color:#fff">เจ้ายาม: ${displayStar}</span>
-                    </div>
-                    <div class="res-stars">เลข Resonance: ${yamaStar}, ${coreStars[0]}, ${coreStars[1]} ${yamaStar == 7 ? ', 0' : ''}</div>
-                    <div class="power-bar-container">
-                        <div class="power-bar" style="width: ${score}%"></div>
-                    </div>
-                    <div style="font-size:0.7rem; margin-top:5px; opacity:0.7">ระดับความ Resonance: ${score}%</div>
+                <div class="timeline-card">
+                    <strong>เวลา ${t} น.</strong> (ยามที่ ${yIdx+1}) เจ้ายามคือ: ${yStar}<br>
+                    เลขแนะนำ: ${yStar}, ${finalArray[0]}, ${finalArray[1]}
                 </div>
             `;
         });
-
-        document.getElementById('timelineContainer').innerHTML = timelineHTML;
+        document.getElementById('timelineArea').innerHTML = timelineHTML;
         document.getElementById('results').style.display = 'block';
     }
 </script>
