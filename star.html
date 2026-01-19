@@ -3,35 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2569 Energy Decoder - Compact</title>
+    <title>Advanced Energy Decoder 2569</title>
     <style>
         :root { --primary: #1a2a3a; --gold: #b8860b; --bg: #fdfdfd; }
         body { font-family: 'Sarabun', sans-serif; background: #ececec; margin: 0; padding: 5px; }
         .container { max-width: 100%; margin: auto; background: white; padding: 10px; border-radius: 10px; box-sizing: border-box; }
-        
-        /* Control Panel แบบแถวเดียว */
         .control-panel { display: flex; gap: 5px; background: #f1f3f5; padding: 10px; border-radius: 8px; margin-bottom: 10px; flex-wrap: wrap; align-items: flex-end; justify-content: center; }
         .control-panel div { flex: 1; min-width: 120px; }
         label { display: block; font-size: 0.7rem; font-weight: bold; margin-bottom: 2px; }
         input, button { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; font-size: 0.8rem; box-sizing: border-box; }
         button { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
-
-        /* ตารางแบบ Fix Width ไม่ให้ล้นจอ */
-        .chart-container { width: 100%; margin-bottom: 15px; }
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; } /* บังคับให้คอลัมน์เท่ากัน */
-        td { border: 1px solid #eee; padding: 4px 1px; text-align: center; background: #fff; position: relative; }
-        
-        .house-name { font-size: 0.6rem; color: #777; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 10px; }
+        td { border: 1px solid #eee; padding: 4px 1px; text-align: center; background: #fff; }
+        .house-name { font-size: 0.6rem; color: #777; display: block; }
         .star-num { font-size: 1.1rem; font-weight: bold; color: var(--primary); line-height: 1; }
         .b4-row { background: #fff9e6; }
         .b4-num { color: #d35400; font-weight: 900; font-size: 1.1rem; }
-
-        /* Dashboard สองฝั่ง */
         .dashboard { display: grid; grid-template-columns: 1fr; gap: 10px; }
         @media (min-width: 600px) { .dashboard { grid-template-columns: 1fr 1fr; } }
-        
         .info-card { background: #f8f9fa; padding: 8px; border-radius: 8px; border-left: 4px solid var(--gold); font-size: 0.8rem; }
-        .rank-box h3 { margin: 0 0 8px 0; font-size: 1rem; text-align: center; }
         .rank-item { display: flex; align-items: center; padding: 5px 0; border-bottom: 1px solid #f0f0f0; }
         .rank-id { width: 22px; height: 22px; background: var(--gold); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.7rem; margin-right: 8px; flex-shrink: 0; }
         .bar-bg { flex-grow: 1; height: 10px; background: #e9ecef; border-radius: 5px; margin: 0 8px; overflow: hidden; }
@@ -40,159 +30,85 @@
     </style>
 </head>
 <body>
-
 <div class="container">
     <div class="control-panel">
-        <div>
-            <label>วันที่วิเคราะห์</label>
-            <input type="date" id="targetDate">
-        </div>
-        <div>
-            <label>เวลา (16.00)</label>
-            <input type="time" id="targetTime" value="16:00">
-        </div>
-        <div style="flex: 0.5; min-width: 80px;">
-            <button onclick="decodeEnergy()">ถอดรหัส</button>
-        </div>
+        <div><label>วันที่วิเคราะห์</label><input type="date" id="targetDate"></div>
+        <div><label>เวลา (16.00)</label><input type="time" id="targetTime" value="16:00"></div>
+        <div style="flex: 0.5; min-width: 80px;"><button onclick="decodeEnergy()">ถอดรหัส</button></div>
     </div>
-
-    <div class="chart-container" id="chartArea"></div>
-
+    <div id="chartArea"></div>
     <div class="dashboard">
         <div id="astralSummary" class="info-card"></div>
-        <div class="rank-box">
-            <h3>🔥 Top 5 Energy (0-9)</h3>
-            <div id="rankingList"></div>
-        </div>
+        <div class="rank-box"><div id="rankingList"></div></div>
     </div>
 </div>
-
-
-
 <script>
     const houses = [
         ["อัตตา", "หินะ", "ธนัง", "ปิตา", "มาตา", "โภคา", "มัชฌิมา"],
         ["ตนุ", "กดุมพะ", "สหัชชะ", "พันธุ", "ปุตตะ", "อริ", "ปัตนิ"],
         ["มรณะ", "สุภะ", "กัมมะ", "ลาภะ", "พยายะ", "ทาสา", "ทาสี"]
     ];
-
     const lunar2569 = [
-        { date: '2026-01-01', monthBase: 2, yearBase: 6 }, 
-        { date: '2026-01-19', monthBase: 3, yearBase: 6 },
-        { date: '2026-02-18', monthBase: 4, yearBase: 6 },
-        { date: '2026-03-19', monthBase: 1, yearBase: 7 }, // เริ่มปีมะเมีย
-        { date: '2026-04-17', monthBase: 2, yearBase: 7 },
-        { date: '2026-05-17', monthBase: 3, yearBase: 7 },
-        { date: '2026-06-15', monthBase: 4, yearBase: 7 },
-        { date: '2026-07-15', monthBase: 5, yearBase: 7 },
-        { date: '2026-08-13', monthBase: 6, yearBase: 7 },
-        { date: '2026-09-12', monthBase: 7, yearBase: 7 },
-        { date: '2026-10-11', monthBase: 1, yearBase: 7 }, 
-        { date: '2026-11-10', monthBase: 2, yearBase: 7 },
+        { date: '2026-01-01', monthBase: 2, yearBase: 6 }, { date: '2026-01-19', monthBase: 3, yearBase: 6 },
+        { date: '2026-02-18', monthBase: 4, yearBase: 6 }, { date: '2026-03-19', monthBase: 1, yearBase: 7 },
+        { date: '2026-04-17', monthBase: 2, yearBase: 7 }, { date: '2026-05-17', monthBase: 3, yearBase: 7 },
+        { date: '2026-06-15', monthBase: 4, yearBase: 7 }, { date: '2026-07-15', monthBase: 5, yearBase: 7 },
+        { date: '2026-08-13', monthBase: 6, yearBase: 7 }, { date: '2026-09-12', monthBase: 7, yearBase: 7 },
+        { date: '2026-10-11', monthBase: 1, yearBase: 7 }, { date: '2026-11-10', monthBase: 2, yearBase: 7 },
         { date: '2026-12-09', monthBase: 3, yearBase: 7 }
     ];
-
     function getLunarData(dateStr) {
         let found = lunar2569[0];
-        for (let entry of lunar2569) {
-            if (dateStr >= entry.date) found = entry;
-            else break;
-        }
+        for (let entry of lunar2569) { if (dateStr >= entry.date) found = entry; else break; }
         return found;
     }
-
     function decodeEnergy() {
         const dateInput = document.getElementById('targetDate').value;
         const timeInput = document.getElementById('targetTime').value;
         if (!dateInput) return;
-
-        const timeParts = timeInput.split(':');
-        const hour = parseInt(timeParts[0]);
+        const hour = parseInt(timeInput.split(':')[0]);
         let dObj = new Date(dateInput);
-        
-        let dayBase = dObj.getDay() + 1; 
+        let dayBase = dObj.getDay() + 1;
         if (hour < 6) dayBase = dayBase - 1 === 0 ? 7 : dayBase - 1;
-
         const lunar = getLunarData(dateInput);
-        const mBase = lunar.monthBase;
-        const yBase = lunar.yearBase;
-
         let chart = [[], [], []];
         for(let i=0; i<7; i++) {
             chart[0].push((dayBase + i - 1) % 7 + 1);
-            chart[1].push((mBase + i - 1) % 7 + 1);
-            chart[2].push((yBase + i - 1) % 7 + 1);
+            chart[1].push((lunar.monthBase + i - 1) % 7 + 1);
+            chart[2].push((lunar.yearBase + i - 1) % 7 + 1);
         }
         let b4 = chart[0].map((v, i) => v + chart[1][i] + chart[2][i]);
-
         renderUI(chart, b4);
         calculateRanking(chart, b4, dayBase, hour);
     }
-
     function renderUI(chart, b4) {
         let html = '<table>';
-        for(let r=0; r<3; r++) {
-            html += '<tr>';
-            for(let c=0; c<7; c++) {
-                html += `<td><span class="house-name">${houses[r][c]}</span><span class="star-num">${chart[r][c]}</span></td>`;
-            }
-            html += '</tr>';
-        }
-        html += '<tr class="b4-row">';
-        b4.forEach(v => html += `<td><span class="house-name">ฐาน</span><span class="b4-num">${v}</span></td>`);
-        html += '</tr></table>';
+        for(let r=0; r<3; r++) { html += '<tr>'; for(let c=0; c<7; c++) { html += `<td><span class="house-name">${houses[r][c]}</span><span class="star-num">${chart[r][c]}</span></td>`; } html += '</tr>'; }
+        html += '<tr class="b4-row">'; b4.forEach(v => html += `<td><span class="house-name">ฐาน</span><span class="b4-num">${v}</span></td>`); html += '</tr></table>';
         document.getElementById('chartArea').innerHTML = html;
     }
-
     function calculateRanking(chart, b4, day, hour) {
         let scores = { 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0, 9:0, 0:0 };
+        scores[day] += 15; // Day Lord Bonus
         for(let i=0; i<7; i++) {
-            for(let r=0; r<3; r++) {
-                let s = chart[r][i];
-                let h = houses[r][i];
-                if(["ลาภะ", "ศุภะ", "ธนัง", "โภคา", "มนตรี"].includes(h)) scores[s] += 12;
-                if(["อริ", "มรณะ", "พยายะ", "หินะ"].includes(h)) scores[s] -= 10;
+            for(let r=0; r<3; r++) { 
+                let s = chart[r][i]; scores[s] += 5; // Frequency Score
+                if(["ลาภะ", "ศุภะ", "ธนัง"].includes(houses[r][i])) scores[s] += 10;
             }
             let val = b4[i];
-            let topStar = chart[0][i];
-            if([16, 14, 13, 19, 21].includes(val)) scores[topStar] += 25;
-            if(val === 12) scores[8] += 22;
-            if(val === 9)  scores[9] += 20;
-            if(val === 10 || val === 20) scores[0] += 20;
+            if([16, 14, 13, 19, 21].includes(val)) { scores[chart[0][i]] += 25; scores[9] += 10; } // Spiritual 9
+            if(val === 12) scores[8] += 22; if(val === 9) scores[9] += 20; if(val === 10 || val === 20) scores[0] += 20;
         }
-
-        const thaksaOrder = [1, 2, 3, 4, 7, 5, 8, 6];
-        const sri = thaksaOrder[(thaksaOrder.indexOf(day) + 3) % 8];
-        const kan = thaksaOrder[(thaksaOrder.indexOf(day) + 7) % 8];
-        let yarnStar = 0;
-        if(hour >= 6 && hour <= 18) {
-            const yarnOrder = [1, 6, 4, 2, 7, 5, 3];
-            let idx = Math.floor((hour - 6) / 1.5);
-            yarnStar = yarnOrder[([0,1,2,3,4,5,6][day-1] + idx) % 7];
-        }
-        scores[sri] += 15;
-        scores[kan] -= 25;
-        if(yarnStar) scores[yarnStar] += 15;
-
         let sorted = Object.entries(scores).sort((a,b) => b[1] - a[1]).slice(0, 5);
         let maxS = Math.max(...Object.values(scores), 1);
         let rankHtml = '';
         sorted.forEach((item, idx) => {
-            let width = Math.max((item[1]/maxS)*100, 5);
-            rankHtml += `<div class="rank-item">
-                <div class="rank-id">${idx+1}</div>
-                <div style="font-weight:bold; width:40px; font-size:0.75rem;">ดาว ${item[0]}</div>
-                <div class="bar-bg"><div class="bar-fill" style="width:${width}%"></div></div>
-                <div class="score-val">${item[1].toFixed(0)}</div>
-            </div>`;
+            rankHtml += `<div class="rank-item"><div class="rank-id">${idx+1}</div><div style="font-weight:bold; width:40px; font-size:0.75rem;">ดาว ${item[0]}</div><div class="bar-bg"><div class="bar-fill" style="width:${(item[1]/maxS)*100}%"></div></div><div class="score-val">${item[1].toFixed(0)}</div></div>`;
         });
         document.getElementById('rankingList').innerHTML = rankHtml;
-        document.getElementById('astralSummary').innerHTML = `ศรี: <b>${sri}</b> | กาลกิณี: <b>${kan}</b> | ยาม: <b>${yarnStar || '-'}</b>`;
     }
-
     document.getElementById('targetDate').valueAsDate = new Date();
     decodeEnergy();
 </script>
-
 </body>
-    </html>
+</html>
