@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Star Decoder - เลข 7 ตัว 4 ฐาน</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e74c3c;
+            --gold: #f1c40f;
+            --bg: #f4f7f6;
+        }
+        body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--primary); margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary); }
+        
+        .control-panel { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+        input, select, button { padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
+        button { background: var(--primary); color: white; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #34495e; }
+
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; text-align: center; }
+        th, td { border: 1px solid #eee; padding: 10px; font-size: 0.9em; }
+        th { background: #f9f9f9; }
+        .base4 { background: #fff3cd; font-weight: bold; }
+
+        .rank-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; align-items: center; }
+        .rank-number { width: 30px; height: 30px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .energy-bar { height: 10px; background: #e0e0e0; border-radius: 5px; flex-grow: 1; margin: 0 15px; overflow: hidden; }
+        .energy-fill { height: 100%; background: linear-gradient(90deg, #3498db, #2ecc71); transition: width 0.5s; }
+        
+        .info-box { margin-top: 15px; font-size: 0.85em; color: #666; border-left: 4px solid var(--gold); padding-left: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>✨ Energy Star Decoder</h1>
+    
+    <div class="control-panel">
+        <input type="date" id="inputDate">
+        <input type="time" id="inputTime" value="16:00">
+        <button onclick="calculateAll()">ถอดรหัสพลังงาน</button>
+    </div>
+
+    <div class="dashboard">
+        <div class="chart-section">
+            <h3>📊 ดวงเลข 7 ตัว 4 ฐาน</h3>
+            <div id="chartOutput"></div>
+            <div id="thaksaOutput" class="info-box"></div>
+            <div id="yarnOutput" class="info-box"></div>
+        </div>
+
+        <div class="rank-section">
+            <h3>🔥 Top 5 พลังงานดาวสูงสุด</h3>
+            <div id="rankOutput"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ข้อมูลภพ 21 ภพ
+    const houseNames = [
+        ["อัตตา", "หินะ", "ธนัง", "ปิตา", "มาตา", "โภคา", "มัชฌิมา"],
+        ["ตนุ", "กดุมพะ", "สหัชชะ", "พันธุ", "ปุตตะ", "อริ", "ปัตนิ"],
+        ["มรณะ", "สุภะ", "กัมมะ", "ลาภะ", "พยายะ", "ทาสา", "ทาสี"]
+    ];
+
+    function calculateAll() {
+        const dateInput = document.getElementById('inputDate').value;
+        const timeInput = document.getElementById('inputTime').value;
+        if (!dateInput) return alert("กรุณาเลือกวันที่");
+
+        const date = new Date(dateInput);
+        const dayOfWeek = date.getDay() === 0 ? 7 : date.getDay(); // 1=อาทิตย์, 7=เสาร์
+        const month = date.getMonth() + 1; // แบบง่าย (ควรเป็นเดือนไทย แต่เพื่อความสะดวกของ Web app จะใช้เดือนสากลแทน)
+        const year = (date.getFullYear() + 543) % 7 || 7;
+
+        // 1. ตั้งดวง 3 แถว
+        let chart = [[], [], []];
+        for (let i = 0; i < 7; i++) {
+            chart[0].push((dayOfWeek + i - 1) % 7 + 1);
+            chart[1].push((month + i - 1) % 7 + 1);
+            chart[2].push((year + i - 1) % 7 + 1);
+        }
+
+        // 2. คำนวณฐาน 4
+        let base4 = [];
+        for (let i = 0; i < 7; i++) {
+            base4.push(chart[0][i] + chart[1][i] + chart[2][i]);
+        }
+
+        // 3. ทักษาจร (ใช้แบบวันเกิด)
+        const thaksaNames = ["บริวาร", "อายุ", "เดช", "ศรี", "มูละ", "อุตสาหะ", "มนตรี", "กาลกิณี"];
+        const thaksaMap = [1, 2, 3, 4, 7, 5, 8, 6]; // เรียงตามเข็มนาฬิกา
+        let dailyThaksa = {};
+        let startIdx = thaksaMap.indexOf(dayOfWeek);
+        for(let i=0; i<8; i++) {
+            dailyThaksa[thaksaMap[(startIdx + i) % 8]] = thaksaNames[i];
+        }
+
+        // 4. ยามอัฐกาล (16.00 น.)
+        const hour = parseInt(timeInput.split(':')[0]);
+        const yarnOrder = [1, 6, 4, 2, 7, 5, 3]; // ยามกลางวัน
+        const yarnIdx = Math.floor((hour - 6) / 1.5); // ช่วงละ 90 นาที เริ่ม 06:00
+        let currentYarn = 0;
+        if (yarnIdx >= 0 && yarnIdx < 8) {
+            let dayStartIdx = [0, 1, 2, 3, 4, 5, 6][dayOfWeek-1]; // แก้ Index ตามวัน
+            currentYarn = yarnOrder[(dayStartIdx + yarnIdx) % 7];
+        }
+
+        renderChart(chart, base4);
+        calculateEnergyRanking(chart, base4, dailyThaksa, currentYarn);
+        
+        document.getElementById('thaksaOutput').innerHTML = `<b>ทักษาประจำวัน:</b> ${dailyThaksa[dayOfWeek]} คือบริวาร ... (ดาว ${Object.keys(dailyThaksa).find(key => dailyThaksa[key] === 'ศรี')} เป็นศรี)`;
+        document.getElementById('yarnOutput').innerHTML = `<b>ยามช่วงเวลา ${timeInput} น.:</b> ดาว ${currentYarn || 'นอกเวลาคำนวณ'} เป็นเจ้าการ`;
+    }
+
+    function renderChart(chart, base4) {
+        let html = '<table><tr>';
+        houseNames[0].forEach(h => html += `<th>${h}</th>`);
+        html += '</tr>';
+        for (let r = 0; r < 3; r++) {
+            html += '<tr>';
+            chart[r].forEach(v => html += `<td>${v}</td>`);
+            html += '</tr>';
+        }
+        html += '<tr class="base4">';
+        base4.forEach(v => html += `<td>${v}</td>`);
+        html += '</tr></table>';
+        document.getElementById('chartOutput').innerHTML = html;
+    }
+
+    function calculateEnergyRanking(chart, base4, thaksa, yarn) {
+        let scores = { 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0 };
+
+        // Logic การให้คะแนน
+        for (let i = 0; i < 7; i++) {
+            for (let r = 0; r < 3; r++) {
+                let star = chart[r][i];
+                let house = houseNames[r][i];
+                
+                // คะแนนจากภพดี/เสีย
+                if (["ลาภะ", "ศุภะ", "ธนัง", "มนตรี"].includes(house)) scores[star] += 5;
+                if (["อริ", "มรณะ", "พยายะ"].includes(house)) scores[star] -= 5;
+
+                // คะแนนจากฐานที่ 4 (สำคัญที่สุดตามลำดับความเข้มข้น)
+                let b4 = base4[i];
+                if ([16, 14, 13, 19, 21].includes(b4)) scores[star] += 15;
+                if ([10, 20, 9].includes(b4)) scores[star] += 8;
+                if ([7, 11, 12].includes(b4)) scores[star] -= 5;
+            }
+        }
+
+        // คะแนนจากทักษา
+        for (let star in scores) {
+            if (thaksa[star] === "ศรี") scores[star] += 12;
+            if (thaksa[star] === "มนตรี") scores[star] += 8;
+            if (thaksa[star] === "กาลกิณี") scores[star] -= 15;
+            if (parseInt(star) === yarn) scores[star] *= 1.3; // ยามคูณพลังงาน
+        }
+
+        // จัดลำดับ
+        let sorted = Object.entries(scores)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+
+        let rankHtml = '';
+        let maxScore = sorted[0][1];
+        sorted.forEach((item, idx) => {
+            let starNum = item[0];
+            let score = item[1].toFixed(1);
+            let width = (item[1] / maxScore) * 100;
+            if (width < 10) width = 10;
+
+            rankHtml += `
+                <div class="rank-item">
+                    <div class="rank-number">${idx + 1}</div>
+                    <div style="width: 60px; font-weight:bold;">ดาว ${starNum}</div>
+                    <div class="energy-bar"><div class="energy-fill" style="width: ${width}%"></div></div>
+                    <div style="font-size: 0.8em;">${score} Pts</div>
+                </div>`;
+        });
+        document.getElementById('rankOutput').innerHTML = rankHtml;
+    }
+
+    // Initialize
+    document.getElementById('inputDate').valueAsDate = new Date();
+    calculateAll();
+</script>
+
+</body>
+</html>
