@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7-Digit Master: Ultimate Edition</title>
+    <title>7-Digit Master: Correct Houses Edition</title>
     <style>
         :root { --primary: #1a2a3a; --gold: #c5a02e; --bg: #f4f7f6; --kalakini: #ffcdd2; --good-base: #fff9c4; --personal: #e3f2fd; }
         body { font-family: 'Tahoma', sans-serif; background: var(--bg); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
@@ -18,7 +18,6 @@
         .digit-value { font-size: 24px; font-weight: bold; display: block; }
         .is-kalakini { background: var(--kalakini) !important; color: #b71c1c; }
         .is-good-base { background: var(--good-base); border: 2px solid var(--gold); }
-        .is-bad-house { color: #d32f2f; background: #fff5f5; }
         .is-personal { border: 2px dashed #2196f3; background: var(--personal); }
         .row-base { border-top: 2px solid #333; background: #fafafa; }
         .base-label { font-size: 10px; font-weight: bold; color: #b71c1c; }
@@ -42,15 +41,16 @@
     <table class="result-table"><tbody id="tableBody"></tbody></table>
     <div id="detailsBox" class="details-panel">
         <div id="detailsTitle" class="details-title">บทวิเคราะห์ Master Tools</div>
-        <div id="detailsContent">คลิกที่ช่องภพเพื่อดูพยากรณ์สัมพันธ์ หรือคลิกที่ฐานเพื่อวิเคราะห์เสาพยากรณ์ตามตำราพลูหลวง</div>
+        <div id="detailsContent">คลิกที่ช่องภพเพื่อดูพยากรณ์สัมพันธ์ หรือคลิกที่ฐานเพื่อวิเคราะห์เสาพยากรณ์</div>
     </div>
 </div>
 
 <script>
+    // แก้ไข Matrix ชื่อภพให้ตรงตามมาตรฐาน 7 เสา 3 แถว
     const houseNames = [
-        ["อัตตะ", "หินะ", "ธนัง", "สหัสชะ", "ปิตา", "มาตา", "โภคา"],
-        ["มัชฌิมา", "ตนุ", "กดุมภะ", "สหัชชะ", "พันธุ", "ปุตตะ", "อริ"],
-        ["ปัตนิ", "มรณะ", "สุภะ", "กัมมะ", "ลาภะ", "พยายะ", "ทาสา"]
+        ["อัตตะ", "หินะ", "ธนัง", "ปิตา", "มาตา", "โภคา", "มัชฌิมา"],
+        ["ตนุ", "กดุมภะ", "สหัชชะ", "พันธุ", "ปุตตะ", "อริ", "ปัตนิ"],
+        ["มรณะ", "สุภะ", "กัมมะ", "ลาภะ", "พยายะ", "ทาสา", "ทาสี"]
     ];
 
     const baseData = {
@@ -81,7 +81,7 @@
         3: { p: "อังคาร: ขยัน/ปะทะ", at: { g: "ขยัน รวดเร็ว เด็ดขาด", b: "ใจร้อนวู่วาม ใช้อารมณ์" }, money: { g: "ได้ลาภจากความเหนื่อยยาก", b: "จ่ายเพราะความวู่วาม" }, trouble: { g: "ฝ่าฟันอุปสรรคได้เร็ว", b: "ระวังอุบัติเหตุ/ทะเลาะวิวาท" }, general: { g: "มุ่งมั่นตั้งใจสูงมาก", b: "ระวังการปะทะขัดแย้ง" } },
         4: { p: "พุธ: เจรจา/สังคม", at: { g: "ฉลาดพูด มีไหวพริบ", b: "พูดมากไปจนเป็นภัย" }, money: { g: "ลาภจากการติดต่อ/นายหน้า", b: "โกงเอกสาร/ตกลงไม่ลงตัว" }, trouble: { g: "แก้ปัญหาได้ด้วยคำพูด", b: "ระวังถูกนินทา/เอกสารหาย" }, general: { g: "การสื่อสารราบรื่นดี", b: "ผิดพลาดเพราะการสื่อสาร" } },
         5: { p: "พฤหัส: สติปัญญา/ผู้ใหญ่", at: { g: "มีคุณธรรม ผู้ใหญ่เอ็นดู", b: "ดื้อรั้นในทฤษฎี/ยึดติด" }, money: { g: "ลาภจากวิชาความรู้", b: "เสียเงินช่วยผู้อื่นมากไป" }, trouble: { g: "ผู้ใหญ่ช่วยให้พ้นภัย", b: "ปัญหาข้อกฎหมาย/ระเบียบ" }, general: { g: "สำเร็จด้วยคำแนะนำที่ดี", b: "กดดันจากกฎระเบียบมากไป" } },
-        6: { p: "ศุกร์: ความสุข/ทรัพย์", at: { g: "รสนิยมดี มีโชคติดตัว", b: "หลงมัวเมาในกาม/กิเลส" }, money: { g: "เงินไหลมาเทมา มีลาภลอย", b: "ฟุ่มเฟือย/หมดไปกับความใคร่" }, trouble: { g: "ความรัก/การเงินจะคลี่คลาย", b: "ปัญหาชู้สาว/ถูกหลอกลวง" }, general: { g: "ราบรื่นและมีความสุข", b: "ฟุ่มเฟือยจนเสียระบบ" } },
+        6: { p: "ศุกร์: ความสุข/ทรัพย์", at: { g: "รสนิยมดี มีโชคติดตัว", b: "หลงมัวเมาในกาม/กิเลส" }, money: { g: "เงินไหลมาเทมา มีลาภลอย", b: "ฟุ่มเฟือย/หมดไปกับความใคร่" }, trouble: { g: { g: "ความรัก/การเงินจะคลี่คลาย", b: "ปัญหาชู้สาว/ถูกหลอกลวง" }, general: { g: "ราบรื่นและมีความสุข", b: "ฟุ่มเฟือยจนเสียระบบ" } },
         7: { p: "เสาร์: อดทน/ภาระ", at: { g: "อดทนสูง วางแผนรอบคอบ", b: "เครียด อมทุกข์ คิดมาก" }, money: { g: "ลาภจากที่ดิน/ของเก่า", b: "หนี้สิน/เงินทองติดขัด" }, trouble: { g: "อดทนจะผ่านอุปสรรคใหญ่", b: "โรคเรื้อรัง/สูญเสียใหญ่" }, general: { g: "เรื่องนั้นจะมั่นคงยาวนาน", b: "เหนื่อยยากและล่าช้ามาก" } }
     };
 
